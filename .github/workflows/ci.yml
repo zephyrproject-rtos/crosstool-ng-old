@@ -1,0 +1,16 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test1:
+    name: Ubuntu 18.04 - arm-unknown-eabi
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Check out source code
+      uses: actions/checkout@v2
