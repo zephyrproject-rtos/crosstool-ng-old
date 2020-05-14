@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  # Build crosstool-ng for Ubuntu 18.04 build host
+  ubuntu-18-04_crosstool-ng:
+    name: Ubuntu 18.04 - crosstool-ng
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Install dependency packages
+      run: |
+        sudo apt-get install bison flex gettext help2man libncurses5-dev
+        sudo apt-get install libtool-bin libtool-doc texinfo
+
+    - name: Check out source code
+      uses: actions/checkout@v2
+
+    - name: Bootstrap
+      run: ./bootstrap
+
+    - name: Configure
+      run: ./configure --prefix=/opt/crosstool-ng
+
+    - name: Make
+      run: make
+
+    - name: Install
+      run: make install
+
+    - name: Package crosstool-ng
+      run: tar -cvf crosstool-ng.tar -C /opt crosstool-ng
+
+    - name: Upload crosstool-ng
+      uses: actions/upload-artifact@v1
+      with:
+        name: ubuntu-18-04_crosstool-ng
+        path: crosstool-ng.tar
+
+  # Build crosstool-ng for macOS 10.15 build host
+  macos-10-15_crosstool-ng:
+    name: macOS 10.15 - crosstool-ng
+    runs-on: macos-10.15
+
+    steps:
+    - name: Install dependency packages
+      run: |
+        brew install autoconf automake bash binutils gawk gnu-sed help2man
+        brew install ncurses
+
+    - name: Configure environment
+      run: |
+        echo "::add-path::/usr/local/opt/binutils/bin"
+        echo "::set-env name=CPPFLAGS::-I/usr/local/opt/ncurses/include -I/usr/local/opt/gettext/include"
+        echo "::set-env name=LDFLAGS::-L/usr/local/opt/ncurses/lib -L/usr/local/opt/gettext/lib"
+
+    - name: Check out source code
+      uses: actions/checkout@v2
+
+    - name: Bootstrap
+      run: ./bootstrap
+
+    - name: Configure
+      run: ./configure --prefix=/opt/crosstool-ng
+
+    - name: Make
+      run: make
+
+    - name: Install
+      run: make install
+
+    - name: Package crosstool-ng
+      run: tar -cvf crosstool-ng.tar -C /opt crosstool-ng
+
+    - name: Upload crosstool-ng
+      uses: actions/upload-artifact@v1
+      with:
+        name: macos-10-15_crosstool-ng
+        path: crosstool-ng.tar
+
+  # Build Linux to ARM EABI cross compiler on Linux
+  ubuntu-18-04_arm-unknown-eabi:
+    name: Ubuntu 18.04 - arm-unknown-eabi
+    runs-on: ubuntu-18.04
+    needs: ubuntu-18-04_crosstool-ng
+
+    steps:
+    - name: Install dependency packages
+      run: |
+        sudo apt-get install bison flex gettext help2man libncurses5-dev
+        sudo apt-get install libtool-bin libtool-doc texinfo
+
+    - name: Download crosstool-ng
+      uses: actions/download-artifact@v1
+      with:
+        name: ubuntu-18-04_crosstool-ng
+        path: .
+
+    - name: Unpackage crosstool-ng
+      run: |
+        tar -xvf crosstool-ng.tar -C /opt
+        rm -f crosstool-ng.tar
+
+    - name: Test crosstool-ng
+      run: |
+        /opt/crosstool-ng/bin/ct-ng version
+
+    - name: Check out source code
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        export CT_PREFIX=/output
+        export CT_NG=/opt/crosstool-ng/bin/ct-ng
+
+        mkdir -p build
+
+        ${CT_NG} arm-unknown-eabi
+        ${CT-NG} build
