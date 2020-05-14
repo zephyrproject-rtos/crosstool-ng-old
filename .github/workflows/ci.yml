@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: ${{ matrix.target }} (${{ matrix.host.name }})
+    runs-on: ${{ matrix.host.build }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        host:
+        - name: linux
+          build: ubuntu-18.04
+        - name: macos
+          build: macos-10.15
+        - name: windows
+          build: ubuntu-18.04
+        target: [ arm-unknown-eabi ]
+
+    steps:
+    # Set up build environment (Linux build system)
+    - name: Install dependency packages for Linux
+      if: ${{ matrix.host.build == 'ubuntu-18.04' }}
+      run: |
+        sudo apt-get install bison flex gettext help2man libncurses5-dev
+        sudo apt-get install libtool-bin libtool-doc texinfo
+
+        if [ "${{ matrix.host.name }}" == "windows" ]; then
+          sudo apt-get install binutils-mingw-w64
+          sudo apt-get install gcc-mingw-w64
+          sudo apt-get install g++-mingw-w64
+        fi
+
+    # Set up build environment (macOS build system)
+    - name: Install dependency packages for macOS
+      if: ${{ runner.os == 'macOS' }}
+      run: |
+        brew install autoconf automake bash binutils gawk gnu-sed help2man
+        brew install ncurses
+
+    - name: Create case sensitive workspace volume for macOS
+      if: ${{ runner.os == 'macOS' }}
+      run: |
+        hdiutil create ${HOME}/Workspace.sparseimage -volname Workspace -type SPARSE -size 10g -fs HFSX
+        hdiutil mount ${HOME}/Workspace.sparseimage
+
+    # Check out source code
+    - name: Check out source code
+      uses: actions/checkout@v2
+
+    # Build crosstool-ng
+    - name: Build crosstool-ng
+      run: |
+        export PATH="$PATH:/usr/local/opt/binutils/bin"
+        export CPPFLAGS="-I/usr/local/opt/ncurses/include -I/usr/local/opt/gettext/include"
+        export LDFLAGS="-L/usr/local/opt/ncurses/lib -L/usr/local/opt/gettext/lib"
+
+        ./bootstrap
+        ./configure --prefix=${HOME}/crosstool-ng
+        make
+        make install
+
+    - name: Test crosstool-ng
+      run: |
+        ${HOME}/crosstool-ng/bin/ct-ng version
+
+    # Build toolchain
+    - name: Build ${{ matrix.target }} toolchain for ${{ matrix.host.name }}
+      run: |
+        export CT_NG="${HOME}/crosstool-ng/bin/ct-ng"
+
+        # Resolve workspace path
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          export WORKSPACE="/Volumes/Workspace"
+        else
+          export WORKSPACE="${HOME}"
+        fi
+
+        # Set output path
+        export CT_PREFIX="${WORKSPACE}/output"
+
+        # Create build directory
+        mkdir -p ${WORKSPACE}/build
+        cd ${WORKSPACE}/build
+
+        # Load default target configurations
+        ${CT_NG} ${{ matrix.target }}
+
+        # Set logging configurations
+        cat <<EOF >> .config
+        CT_LOG_PROGRESS_BAR=n
+        CT_LOG_EXTRA=n
+        CT_LOG_ALL=y
+        CT_LOG_LEVEL_MAX="ALL"
+        EOF
+
+        # Set Windows Canadian cross compilation configurations
+        if [ "${{ matrix.host.name }}" == "windows" ]; then
+          cat <<EOF >> .config
+        CT_CANADIAN=y
+        CT_HOST="x86_64-w64-mingw32"
+        EOF
+        fi
+
+        # Merge configurations
+        ${CT_NG} savedefconfig DEFCONFIG=build.config
+        ${CT_NG} distclean
+        ${CT_NG} defconfig DEFCONFIG=build.config
+
+        # Build
+        ${CT_NG} build
+
+        # Create tar.xz archive
+        ls -l ${WORKSPACE}/output
+        tar -cvf ${HOME}/output.tar -C ${WORKSPACE}/output .
+
+    # Upload build log
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: toolchain_${{ matrix.host.name }}_${{ matrix.target }}
+        path: ~/output.tar
