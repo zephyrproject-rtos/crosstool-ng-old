@@ -24,6 +24,7 @@ jobs:
         target:
         - arm-unknown-eabi
         - arm-nano-eabi
+        - nios2-unknown-elf
 
     steps:
     # Set up build environment (Linux build system)
