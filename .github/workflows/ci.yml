@@ -61,9 +61,11 @@ jobs:
     # Build crosstool-ng
     - name: Build crosstool-ng
       run: |
-        export PATH="$PATH:/usr/local/opt/binutils/bin"
-        export CPPFLAGS="-I/usr/local/opt/ncurses/include -I/usr/local/opt/gettext/include"
-        export LDFLAGS="-L/usr/local/opt/ncurses/lib -L/usr/local/opt/gettext/lib"
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          export PATH="$PATH:/usr/local/opt/binutils/bin"
+          export CPPFLAGS="-I/usr/local/opt/ncurses/include -I/usr/local/opt/gettext/include"
+          export LDFLAGS="-L/usr/local/opt/ncurses/lib -L/usr/local/opt/gettext/lib"
+        fi
 
         ./bootstrap
         ./configure --prefix=${HOME}/crosstool-ng
