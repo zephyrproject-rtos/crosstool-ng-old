@@ -26,6 +26,7 @@ jobs:
         - arm-nano-eabi
         - nios2-unknown-elf
         - riscv64-unknown-elf
+        - sparc-zephyr-elf
 
     steps:
     # Set up build environment (Linux build system)
