@@ -20,6 +20,10 @@ do_companion_tools_dtc_for_build()
         cflags="${CT_CFLAGS_FOR_BUILD}" \
         ldflags="${CT_LDFLAGS_FOR_BUILD}"
     CT_Popd
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-dtc-build directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-dtc-build"
+    fi
     CT_EndStep
 }
 
@@ -33,6 +37,10 @@ do_companion_tools_dtc_for_host()
         cflags="${CT_CFLAGS_FOR_HOST}" \
         ldflags="${CT_LDFLAGS_FOR_HOST}"
     CT_Popd
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-dtc-host directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-dtc-host"
+    fi
     CT_EndStep
 }
 

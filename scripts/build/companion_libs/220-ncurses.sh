@@ -36,6 +36,12 @@ do_ncurses_for_build() {
                        install_target=install.progs \
                        "${opts[@]}"
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-ncurses-build-${CT_BUILD} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-ncurses-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -65,6 +71,12 @@ do_ncurses_for_host() {
                        ldflags="${CT_LDFLAGS_FOR_HOST}" \
                        "${opts[@]}"
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-ncurses-host-${CT_HOST} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-ncurses-host-${CT_HOST}"
+    fi
+
     CT_EndStep
 }
 fi
@@ -100,6 +112,12 @@ do_ncurses_for_target() {
                        cflags="${CT_ALL_TARGET_CFLAGS}" \
                        "${opts[@]}"
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-ncurses-target-${CT_TARGET} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-ncurses-target-${CT_TARGET}"
+    fi
+
     CT_EndStep
 }
 fi

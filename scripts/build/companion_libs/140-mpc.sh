@@ -41,6 +41,12 @@ do_mpc_for_build() {
     do_mpc_backend "${mpc_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-mpc-build-${CT_BUILD} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-mpc-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -58,6 +64,12 @@ do_mpc_for_host() {
     do_mpc_backend "${mpc_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-mpc-host-${CT_HOST} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-mpc-host-${CT_HOST}"
+    fi
+
     CT_EndStep
 }
 

@@ -33,6 +33,12 @@ do_expat_for_host() {
     do_expat_backend "${expat_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-expat-host-${CT_HOST} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-expat-host-${CT_HOST}"
+    fi
+
     CT_EndStep
 }
 fi
@@ -62,6 +68,12 @@ do_expat_for_target() {
     do_expat_backend "${expat_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-expat-target-${CT_TARGET} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-expat-target-${CT_TARGET}"
+    fi
+
     CT_EndStep
 }
 fi
