@@ -25,6 +25,7 @@ jobs:
         - aarch64-zephyr-elf
         - arc-zephyr-elf
         - arm-zephyr-eabi
+        - nios2-zephyr-elf
         - riscv64-zephyr-elf
         - sparc-zephyr-elf
 
