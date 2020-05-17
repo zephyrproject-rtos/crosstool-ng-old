@@ -22,6 +22,7 @@ jobs:
         - name: windows-x86_64
           build: ubuntu-18.04
         target:
+        - arc-zephyr-elf
         - arm-zephyr-eabi
         - sparc-zephyr-elf
 
