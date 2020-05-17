@@ -22,10 +22,6 @@ jobs:
         - name: windows-x86_64
           build: ubuntu-18.04
         target:
-        - arm-unknown-eabi
-        - arm-nano-eabi
-        - nios2-unknown-elf
-        - riscv64-unknown-elf
         - sparc-zephyr-elf
 
     steps:
