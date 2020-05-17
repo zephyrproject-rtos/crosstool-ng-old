@@ -98,6 +98,11 @@ jobs:
         # Load default target configurations
         ${CT_NG} ${{ matrix.target }}
 
+        # Set build configurations
+        cat <<EOF >> .config
+        CT_CLEAN_AFTER_BUILD_STEP=y
+        EOF
+
         # Set logging configurations
         cat <<EOF >> .config
         CT_LOG_PROGRESS_BAR=n
