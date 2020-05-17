@@ -1,0 +1,3 @@
+reporter_name="Zephyr RTOS Project"
+reporter_url="https://www.zephyrproject.org/"
+reporter_comment="Config to build ARM toolchain for Zephyr RTOS"
