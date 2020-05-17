@@ -20,6 +20,10 @@ do_companion_tools_m4_for_build()
         cflags="${CT_CFLAGS_FOR_BUILD}" \
         ldflags="${CT_LDFLAGS_FOR_BUILD}"
     CT_Popd
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-m4-build directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-m4-build"
+    fi
     CT_EndStep
 }
 
@@ -33,6 +37,10 @@ do_companion_tools_m4_for_host()
         cflags="${CT_CFLAGS_FOR_HOST}" \
         ldflags="${CT_LDFLAGS_FOR_HOST}"
     CT_Popd
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-m4-host directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-m4-host"
+    fi
     CT_EndStep
 }
 

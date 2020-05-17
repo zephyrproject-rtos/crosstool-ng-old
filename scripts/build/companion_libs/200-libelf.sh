@@ -38,6 +38,12 @@ do_libelf_for_build() {
     do_libelf_backend "${libelf_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libelf-build-${CT_BUILD} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libelf-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -55,6 +61,13 @@ do_libelf_for_host() {
     do_libelf_backend "${libelf_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libelf-host-${CT_HOST} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libelf-host-${CT_HOST}"
+    fi
+
+
     CT_EndStep
 }
 
@@ -87,6 +100,12 @@ do_libelf_for_target() {
     do_libelf_backend "${libelf_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libelf-target-${CT_TARGET} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libelf-target-${CT_TARGET}"
+    fi
+
     CT_EndStep
 }
 

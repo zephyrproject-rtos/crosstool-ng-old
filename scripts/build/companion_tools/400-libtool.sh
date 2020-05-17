@@ -16,6 +16,10 @@ do_companion_tools_libtool_for_build()
     CT_mkdir_pushd "${CT_BUILD_DIR}/build-libtool-build"
     do_libtool_backend host=${CT_BUILD} prefix="${CT_BUILD_COMPTOOLS_DIR}"
     CT_Popd
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libtool-build directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libtool-build"
+    fi
     CT_EndStep
 }
 
@@ -25,6 +29,10 @@ do_companion_tools_libtool_for_host()
     CT_mkdir_pushd "${CT_BUILD_DIR}/build-libtool-host"
     do_libtool_backend host=${CT_HOST} prefix="${CT_PREFIX_DIR}"
     CT_Popd
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libtool-host directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libtool-host"
+    fi
     CT_EndStep
 }
 

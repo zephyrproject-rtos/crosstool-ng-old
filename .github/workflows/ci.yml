@@ -26,6 +26,7 @@ jobs:
         - arm-nano-eabi
         - nios2-unknown-elf
         - riscv64-unknown-elf
+        - sparc-zephyr-elf
 
     steps:
     # Set up build environment (Linux build system)
@@ -98,6 +99,11 @@ jobs:
         # Load default target configurations
         ${CT_NG} ${{ matrix.target }}
 
+        # Set build configurations
+        cat <<EOF >> .config
+        CT_CLEAN_AFTER_BUILD_STEP=y
+        EOF
+
         # Set logging configurations
         cat <<EOF >> .config
         CT_LOG_PROGRESS_BAR=n
@@ -111,6 +117,7 @@ jobs:
           cat <<EOF >> .config
         CT_CANADIAN=y
         CT_HOST="x86_64-w64-mingw32"
+        CT_GDB_CROSS_PYTHON=n
         EOF
         fi
 
