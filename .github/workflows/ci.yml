@@ -24,6 +24,7 @@ jobs:
         target:
         - arc-zephyr-elf
         - arm-zephyr-eabi
+        - riscv64-zephyr-elf
         - sparc-zephyr-elf
 
     steps:
