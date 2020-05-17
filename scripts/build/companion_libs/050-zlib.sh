@@ -41,6 +41,12 @@ do_zlib_for_build() {
     do_zlib_backend "${zlib_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+            CT_DoLog EXTRA "Cleaning build-zlib-build-${CT_BUILD} directory"
+            CT_DoForceRmdir "${CT_BUILD_DIR}/build-zlib-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -58,6 +64,12 @@ do_zlib_for_host() {
     do_zlib_backend "${zlib_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+            CT_DoLog EXTRA "Cleaning build-zlib-host-${CT_HOST} directory"
+            CT_DoForceRmdir "${CT_BUILD_DIR}/build-zlib-host-${CT_HOST}"
+    fi
+
     CT_EndStep
 }
 

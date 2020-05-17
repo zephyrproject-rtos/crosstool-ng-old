@@ -26,6 +26,10 @@ do_companion_tools_make_for_build()
     if [ "${CT_MAKE_GNUMAKE_SYMLINK}" = "y" ]; then
         CT_DoExecLog ALL ln -sv make "${CT_BUILD_COMPTOOLS_DIR}/bin/gnumake"
     fi
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-make-build directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-make-build"
+    fi
     CT_EndStep
 }
 
@@ -44,6 +48,10 @@ do_companion_tools_make_for_host()
     fi
     if [ "${CT_MAKE_GNUMAKE_SYMLINK}" = "y" ]; then
         CT_DoExecLog ALL ln -sv make "${CT_PREFIX_DIR}/bin/gnumake"
+    fi
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-make-host directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-make-host"
     fi
     CT_EndStep
 }

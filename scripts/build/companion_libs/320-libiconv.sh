@@ -34,6 +34,12 @@ do_libiconv_for_build() {
     do_libiconv_backend "${libiconv_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libiconv-build-${CT_BUILD} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libiconv-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -51,6 +57,12 @@ do_libiconv_for_host() {
     do_libiconv_backend "${libiconv_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libiconv-host-${CT_HOST} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libiconv-host-${CT_HOST}"
+    fi
+
     CT_EndStep
 }
 

@@ -209,6 +209,12 @@ do_cc_core_pass_1() {
     do_gcc_core_backend "${core_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-cc-gcc-core-pass-1 directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-cc-gcc-core-pass-1"
+    fi
+
     CT_EndStep
 }
 
@@ -259,6 +265,12 @@ do_cc_core_pass_2() {
     do_gcc_core_backend "${core_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-cc-gcc-core-pass-2 directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-cc-gcc-core-pass-2"
+    fi
+
     CT_EndStep
 }
 
@@ -782,6 +794,12 @@ do_cc_for_build() {
     "${build_final_backend}" "${build_final_opts[@]}"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-cc-gcc-final-build-${CT_BUILD} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-cc-gcc-final-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -879,6 +897,11 @@ do_cc_for_host() {
         CT_Popd
     fi
 
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-cc-gcc-final directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-cc-gcc-final"
+    fi
+
     CT_EndStep
 }
 
@@ -930,6 +953,11 @@ do_cc_libstdcxx_nano()
         CT_mkdir_pushd "${CT_BUILD_DIR}/build-cc-libstdcxx-nano-copy"
         CT_IterateMultilibs libstdcxx_nano_copy_multilibs copylibs
         CT_Popd
+
+        if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+            CT_DoLog EXTRA "Cleaning build-cc-libstdcxx-nano directory"
+            CT_DoForceRmdir "${CT_BUILD_DIR}/build-cc-libstdcxx-nano"
+        fi
 
         CT_EndStep
     fi

@@ -152,3 +152,10 @@ config CONFIG_SHELL
     default "/bin/ash"                  if CONFIG_SHELL_ASH
     default "${bash}"                   if CONFIG_SHELL_BASH
     default CONFIG_SHELL_CUSTOM_PATH    if CONFIG_SHELL_CUSTOM
+
+config CLEAN_AFTER_BUILD_STEP
+    bool
+    prompt "Clean after each build step"
+    help
+      Remove build directory after each build step to reduce overall disk
+      space usage.

@@ -90,6 +90,12 @@ do_debug_gdb_build()
         fi # Install gdbinit sample
 
         CT_Popd
+
+        if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+            CT_DoLog EXTRA "Cleaning build-gdb-cross directory"
+            CT_DoForceRmdir "${CT_BUILD_DIR}/build-gdb-cross"
+        fi
+
         CT_EndStep
     fi
 
@@ -154,6 +160,12 @@ do_debug_gdb_build()
         unset ac_cv_func_strncmp_works
 
         CT_Popd
+
+        if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+            CT_DoLog EXTRA "Cleaning build-gdb-native directory"
+            CT_DoForceRmdir "${CT_BUILD_DIR}/build-gdb-native"
+        fi
+
         CT_EndStep # native gdb build
     fi
 }

@@ -50,6 +50,11 @@ do_binutils_for_build() {
         CT_Popd
     fi
 
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-binutils-build-${CT_BUILD} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-binutils-build-${CT_BUILD}"
+    fi
+
     CT_EndStep
 }
 
@@ -100,6 +105,11 @@ do_binutils_for_host() {
             ;;
         *)  ;;
     esac
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-binutils-host-${CT_HOST} directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-binutils-host-${CT_HOST}"
+    fi
 
     CT_EndStep
 }
@@ -357,6 +367,12 @@ do_binutils_for_target() {
         CT_DoExecLog ALL make DESTDIR="${CT_SYSROOT_DIR}" "${install_targets[@]}"
 
         CT_Popd
+
+        if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+            CT_DoLog EXTRA "Cleaning build-binutils-for-target directory"
+            CT_DoForceRmdir "${CT_BUILD_DIR}/build-binutils-for-target"
+        fi
+
         CT_EndStep
     fi
 }
