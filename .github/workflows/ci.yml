@@ -28,6 +28,7 @@ jobs:
         - nios2-zephyr-elf
         - riscv64-zephyr-elf
         - sparc-zephyr-elf
+        - x86_64-zephyr-elf
 
     steps:
     # Set up build environment (Linux build system)
