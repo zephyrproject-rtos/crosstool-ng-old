@@ -54,7 +54,7 @@ jobs:
     - name: Create case sensitive workspace volume for macOS
       if: ${{ runner.os == 'macOS' }}
       run: |
-        hdiutil create ${HOME}/Workspace.sparseimage -volname Workspace -type SPARSE -size 10g -fs HFSX
+        hdiutil create ${HOME}/Workspace.sparseimage -volname Workspace -type SPARSE -size 14g -fs HFSX
         hdiutil mount ${HOME}/Workspace.sparseimage
 
     # Check out source code
