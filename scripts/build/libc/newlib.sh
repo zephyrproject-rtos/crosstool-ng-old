@@ -113,6 +113,12 @@ newlib_build_full()
     fi
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libc directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libc"
+    fi
+
     CT_EndStep
 }
 
@@ -204,6 +210,12 @@ newlib_build_nano()
                            "${CT_PREFIX_DIR}/${CT_TARGET}/include/newlib-nano/newlib.h"
 
     CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-libc-nano directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-libc-nano"
+    fi
+
     CT_EndStep
 }
 

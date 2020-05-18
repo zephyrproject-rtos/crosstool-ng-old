@@ -1,0 +1,34 @@
+From f04f643bdf100d2a3794535e5811a76f81d1477b Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Mon, 18 May 2020 13:10:23 +0900
+Subject: [PATCH] libstdc++-v3: Remove precompiled header files after build
+
+The precompiled header files for libstdc++-v3 take up a lot of disk
+space (hundreds of megabytes) and this can drastically increase the
+disk space requirement for the automated build servers, especially when
+building a target with a large number of multilibs.
+
+This patch ensures that the precompiled header files (.gch and .pch)
+are removed after building.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ libstdc++-v3/Makefile.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libstdc++-v3/Makefile.in b/libstdc++-v3/Makefile.in
+index bf8a7f24329..8c1bb723770 100644
+--- a/libstdc++-v3/Makefile.in
++++ b/libstdc++-v3/Makefile.in
+@@ -821,6 +821,8 @@ TAGS: tags-recursive $(LISP)
+ # comments below.
+ all-multi:
+ 	$(MULTIDO) $(AM_MAKEFLAGS) DO=all multi-do # $(MAKE)
++	-find . -name *.gch -type f -delete
++	-find . -name *.pch -type f -delete
+ install-multi:
+ 	$(MULTIDO) $(AM_MAKEFLAGS) DO=install multi-do # $(MAKE)
+ mostlyclean-multi:
+-- 
+2.26.2
+
