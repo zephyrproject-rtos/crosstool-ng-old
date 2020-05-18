@@ -4,13 +4,14 @@ comment "General toolchain options"
 
 config FORCE_SYSROOT
     bool
-    default y if !OBSOLETE && !BARE_METAL
+    default y if !OBSOLETE && !BARE_METAL && !ZEPHYR
     select USE_SYSROOT
 
 config USE_SYSROOT
     bool
     prompt "Use sysroot'ed toolchain"
     depends on !BARE_METAL
+    depends on !ZEPHYR
     default y
     help
       Use the 'shiny new' sysroot feature of gcc: libraries split between

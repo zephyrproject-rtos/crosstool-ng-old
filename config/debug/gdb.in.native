@@ -4,6 +4,7 @@ config GDB_NATIVE
     bool
     prompt "Native gdb"
     depends on ! BARE_METAL
+    depends on ! ZEPHYR
     depends on ! LIBC_BIONIC
     depends on CC_LANG_CXX || !GDB_8_0_or_later
     select LIBC_UCLIBC_WCHAR if LIBC_UCLIBC && GDB_8_0_or_later
@@ -18,6 +19,7 @@ config GDB_GDBSERVER
     prompt "gdbserver"
     default y
     depends on ! BARE_METAL
+    depends on ! ZEPHYR
     select LIBC_UCLIBC_WCHAR if LIBC_UCLIBC && GDB_8_0_or_later
     select LIBC_UCLIBC_IPV6 if LIBC_UCLIBC && GDB_8_3_or_later
     help
@@ -80,3 +82,7 @@ if BARE_METAL
 comment "In bare-metal, you'll need to   "
 comment "provide your own gdbserver stub."
 endif # BARE_METAL
+
+if ZEPHYR
+comment "Native gdb support is not available for Zephyr RTOS at this time"
+endif # ZEPHYR

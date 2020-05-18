@@ -1,0 +1,6 @@
+# Zephyr config options
+
+## no-package
+## select ZEPHYR
+##
+## help Build a toolchain targeting systems running Zephyr RTOS

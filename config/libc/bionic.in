@@ -1,7 +1,7 @@
 # bionic options
 
 ## package android-ndk
-## depends on ! WINDOWS && ! BARE_METAL
+## depends on ! WINDOWS && ! BARE_METAL && ! ZEPHYR
 ## depends on ARCH_ARM || ARCH_MIPS || ARCH_X86
 ## depends on EXPERIMENTAL
 ## select GCC_REQUIRE_6_or_later

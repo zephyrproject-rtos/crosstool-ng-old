@@ -105,7 +105,7 @@ do_finish() {
         CT_Popd
     fi
 
-    if [ "${CT_BARE_METAL}" != "y" ]; then
+    if [[ "${CT_BARE_METAL}" != "y" && "${CT_ZEPHYR}" != "y" ]]; then
         CT_DoLog EXTRA "Installing the populate helper"
         sed -r -e 's|@@CT_TARGET@@|'"${CT_TARGET}"'|g;' \
                -e 's|@@CT_install@@|'"install"'|g;'     \

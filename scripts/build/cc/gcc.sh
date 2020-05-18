@@ -668,7 +668,7 @@ do_gcc_core_backend() {
         # actually the build-system compiler is required. Choose the correct
         # compilers for canadian build and use the defaults on other
         # configurations.
-        if [ "${CT_BARE_METAL},${CT_CANADIAN}" = "y,y" ]; then
+        if [[ "${CT_BARE_METAL},${CT_CANADIAN}" = "y,y" || "${CT_ZEPHYR},${CT_CANADIAN}" = "y,y" ]]; then
             repair_cc="CC_FOR_BUILD=${CT_BUILD}-gcc \
                        CXX_FOR_BUILD=${CT_BUILD}-g++ \
                        GCC_FOR_TARGET=${CT_TARGET}-${CT_CC}"
@@ -773,7 +773,7 @@ do_cc_for_build() {
     build_final_opts+=( "ldflags=${CT_LDFLAGS_FOR_BUILD}" )
     build_final_opts+=( "lang_list=$( cc_gcc_lang_list )" )
     build_final_opts+=( "build_step=gcc_build" )
-    if [ "${CT_BARE_METAL}" = "y" ]; then
+    if [[ "${CT_BARE_METAL}" = "y" || "${CT_ZEPHYR}" = "y" ]]; then
         # In the tests I've done, bare-metal was not impacted by the
         # lack of such a compiler, but better safe than sorry...
         build_final_opts+=( "mode=baremetal" )
@@ -870,7 +870,7 @@ do_cc_for_host() {
     if [ "${CT_BUILD_MANUALS}" = "y" ]; then
         final_opts+=( "build_manuals=yes" )
     fi
-    if [ "${CT_BARE_METAL}" = "y" ]; then
+    if [[ "${CT_BARE_METAL}" = "y" || "${CT_ZEPHYR}" = "y" ]]; then
         final_opts+=( "mode=baremetal" )
         final_opts+=( "build_libgcc=yes" )
         final_opts+=( "build_libstdcxx=yes" )
@@ -922,7 +922,7 @@ do_cc_libstdcxx_nano()
         final_opts+=( "lang_list=$( cc_gcc_lang_list )" )
         final_opts+=( "build_step=libstdcxx_nano" )
 
-        if [ "${CT_BARE_METAL}" = "y" ]; then
+        if [[ "${CT_BARE_METAL}" = "y" || "${CT_ZEPHYR}" = "y" ]]; then
             final_opts+=( "mode=baremetal" )
             final_opts+=( "build_libgcc=yes" )
             final_opts+=( "build_libstdcxx=yes" )

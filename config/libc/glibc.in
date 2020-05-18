@@ -1,7 +1,7 @@
 # This file contains the common configuration options
 # that apply to both glibc.
 
-## depends on ! WINDOWS && ! BARE_METAL && ARCH_USE_MMU
+## depends on ! WINDOWS && ! BARE_METAL && ! ZEPHYR && ARCH_USE_MMU
 ## select LIBC_SUPPORT_THREADS_NATIVE
 ## select CC_CORE_PASSES_NEEDED
 # TBD: select GETTEXT for build only, not for host

@@ -1,6 +1,6 @@
 # newlib options
 
-## depends on BARE_METAL
+## depends on BARE_METAL || ZEPHYR
 ## select LIBC_SUPPORT_THREADS_NONE
 ## select CC_CORE_PASSES_NEEDED if CANADIAN
 ## select CC_CORE_PASS_2_NEEDED if ! CANADIAN

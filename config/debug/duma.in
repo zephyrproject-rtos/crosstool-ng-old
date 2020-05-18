@@ -1,6 +1,7 @@
 # D.U.M.A. - Detect Unintended Memory Access - Memory checker
 
 ## depends on ! BARE_METAL
+## depends on ! ZEPHYR
 ## depends on ! LIBC_BIONIC
 
 ## help D.U.M.A. - Detect Unintended Memory Access
