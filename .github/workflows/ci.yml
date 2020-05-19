@@ -31,6 +31,7 @@ jobs:
         - x86_64-zephyr-elf
         - xtensa-intel_apl_adsp_zephyr-elf
         - xtensa-intel_bdw_adsp_zephyr-elf
+        - xtensa-intel_byt_adsp_zephyr-elf
 
     steps:
     # Set up build environment (Linux build system)
