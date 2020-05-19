@@ -207,7 +207,7 @@ fi
 
 # Compute the package version string
 if [ "${CT_SHOW_CT_VERSION}" = "y" ]; then
-    CT_PKGVERSION="crosstool-NG ${CT_VERSION}${CT_TOOLCHAIN_PKGVERSION:+ - ${CT_TOOLCHAIN_PKGVERSION}}"
+    CT_PKGVERSION="zephyr-crosstool-NG ${CT_VERSION}${CT_TOOLCHAIN_PKGVERSION:+ - ${CT_TOOLCHAIN_PKGVERSION}}"
 else
     CT_PKGVERSION="${CT_TOOLCHAIN_PKGVERSION}"
 fi
