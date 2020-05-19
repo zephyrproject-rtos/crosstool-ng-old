@@ -141,8 +141,18 @@ jobs:
         # Build
         ${CT_NG} build
 
+        # Move build log file out of workspace
+        sudo mv ${WORKSPACE}/output/${{ matrix.target }}/build.log.bz2 ${HOME}/build.log.bz2
+
         # Create archive
         tar -cvf ${HOME}/output.tar -C ${WORKSPACE}/output .
+
+    # Upload build log
+    - name: Upload build log
+      uses: actions/upload-artifact@v2
+      with:
+        name: log_${{ matrix.host.name }}_${{ matrix.target }}
+        path: ~/build.log.bz2
 
     # Upload toolchain
     - name: Upload toolchain
