@@ -35,6 +35,7 @@ jobs:
         - xtensa-intel_s1000_zephyr-elf
         - xtensa-nxp_imx_adsp_zephyr-elf
         - xtensa-nxp_imx8m_adsp_zephyr-elf
+        - xtensa-sample_controller_zephyr-elf
 
     steps:
     # Set up build environment (Linux build system)
