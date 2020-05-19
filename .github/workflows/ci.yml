@@ -145,7 +145,7 @@ jobs:
         sudo mv ${WORKSPACE}/output/${{ matrix.target }}/build.log.bz2 ${HOME}/build.log.bz2
 
         # Create archive
-        tar -cvf ${HOME}/output.tar -C ${WORKSPACE}/output .
+        tar -zcvf ${HOME}/output.tar.gz -C ${WORKSPACE}/output .
 
     # Upload build log
     - name: Upload build log
@@ -159,4 +159,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: toolchain_${{ matrix.host.name }}_${{ matrix.target }}
-        path: ~/output.tar
+        path: ~/output.tar.gz
