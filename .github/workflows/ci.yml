@@ -68,6 +68,9 @@ jobs:
     - name: Check out source code
       uses: actions/checkout@v2
 
+    # Fetch all history for all tags and branches
+    - run: git fetch --prune --unshallow
+
     # Build crosstool-ng
     - name: Build crosstool-ng
       run: |
