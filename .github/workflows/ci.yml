@@ -142,21 +142,21 @@ jobs:
         ${CT_NG} build
 
         # Move build log file out of workspace
-        sudo mv ${WORKSPACE}/output/${{ matrix.target }}/build.log.bz2 ${HOME}/build.log.bz2
+        sudo mv ${WORKSPACE}/output/${{ matrix.target }}/build.log.bz2 ${HOME}/${{ matrix.target }}.log.bz2
 
         # Create archive
-        tar -zcvf ${HOME}/output.tar.gz -C ${WORKSPACE}/output .
+        tar -zcvf ${HOME}/${{ matrix.target }}.tar.gz -C ${WORKSPACE}/output .
 
     # Upload build log
     - name: Upload build log
       uses: actions/upload-artifact@v2
       with:
         name: log_${{ matrix.host.name }}_${{ matrix.target }}
-        path: ~/build.log.bz2
+        path: ~/${{ matrix.target }}.log.bz2
 
     # Upload toolchain
     - name: Upload toolchain
       uses: actions/upload-artifact@v2
       with:
         name: toolchain_${{ matrix.host.name }}_${{ matrix.target }}
-        path: ~/output.tar.gz
+        path: ~/${{ matrix.target }}.tar.gz
