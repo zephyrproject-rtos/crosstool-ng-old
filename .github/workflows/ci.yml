@@ -141,11 +141,19 @@ jobs:
         # Build
         ${CT_NG} build
 
+        # Resolve output directory path
+        if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
+          export OUTPUT_DIR="${WORKSPACE}/output/HOST-x86_64-w64-mingw32"
+        else
+          export OUTPUT_DIR="${WORKSPACE}/output"
+        fi
+
         # Move build log file out of workspace
-        sudo mv ${WORKSPACE}/output/${{ matrix.target }}/build.log.bz2 ${HOME}/${{ matrix.target }}.log.bz2
+        sudo mv ${OUTPUT_DIR}/${{ matrix.target }}/build.log.bz2 \
+                ${HOME}/${{ matrix.target }}.log.bz2
 
         # Create archive
-        tar -zcvf ${HOME}/${{ matrix.target }}.tar.gz -C ${WORKSPACE}/output .
+        tar -zcvf ${HOME}/${{ matrix.target }}.tar.gz -C ${OUTPUT_DIR} .
 
     # Upload build log
     - name: Upload build log
