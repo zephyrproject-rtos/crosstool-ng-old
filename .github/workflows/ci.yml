@@ -106,7 +106,7 @@ jobs:
 
         # Create build directory
         mkdir -p ${WORKSPACE}/build
-        cd ${WORKSPACE}/build
+        pushd ${WORKSPACE}/build
 
         # Load default target configurations
         ${CT_NG} ${{ matrix.target }}
@@ -140,6 +140,7 @@ jobs:
 
         # Build
         ${CT_NG} build
+        popd
 
         # Resolve output directory path
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
@@ -150,21 +151,21 @@ jobs:
 
         # Move build log file out of workspace
         sudo mv ${OUTPUT_DIR}/${{ matrix.target }}/build.log.bz2 \
-                ${HOME}/${{ matrix.target }}.log.bz2
+                ${{ matrix.target }}.log.bz2
 
         # Create archive
-        tar -zcvf ${HOME}/${{ matrix.target }}.tar.gz -C ${OUTPUT_DIR} .
+        tar -zcvf ${{ matrix.target }}.tar.gz -C ${OUTPUT_DIR} .
 
     # Upload build log
     - name: Upload build log
       uses: actions/upload-artifact@v2
       with:
         name: log_${{ matrix.host.name }}_${{ matrix.target }}
-        path: ~/${{ matrix.target }}.log.bz2
+        path: ${{ matrix.target }}.log.bz2
 
     # Upload toolchain
     - name: Upload toolchain
       uses: actions/upload-artifact@v2
       with:
         name: toolchain_${{ matrix.host.name }}_${{ matrix.target }}
-        path: ~/${{ matrix.target }}.tar.gz
+        path: ${{ matrix.target }}.tar.gz
