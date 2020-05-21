@@ -158,6 +158,9 @@ jobs:
           export OUTPUT_DIR="output"
         fi
 
+        # Grant write permission for owner
+        chmod -R u+w ${OUTPUT_BASE}/${OUTPUT_DIR}
+
         # Rename Windows output directory to "output" for consistency
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
           mv ${OUTPUT_BASE}/${OUTPUT_DIR} ${OUTPUT_BASE}/output
@@ -171,8 +174,8 @@ jobs:
         fi
 
         # Move build log file out of workspace
-        sudo mv ${OUTPUT_BASE}/${OUTPUT_DIR}/${{ matrix.target }}/build.log.bz2 \
-                ${{ matrix.target }}.log.bz2
+        mv ${OUTPUT_BASE}/${OUTPUT_DIR}/${{ matrix.target }}/build.log.bz2 \
+           ${{ matrix.target }}.log.bz2
 
         # Create archive
         ${TAR} -zcvf ${{ matrix.target }}.tar.gz --owner=0 --group=0 \
