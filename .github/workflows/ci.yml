@@ -44,21 +44,19 @@ jobs:
     - name: Install dependency packages for Linux
       if: ${{ matrix.host.build == 'ubuntu-18.04' }}
       run: |
-        sudo apt-get install bison flex gettext help2man libncurses5-dev
-        sudo apt-get install libtool-bin libtool-doc texinfo
+        sudo apt-get install bison flex gettext help2man libncurses5-dev \
+                             libtool-bin libtool-doc texinfo
 
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
-          sudo apt-get install binutils-mingw-w64
-          sudo apt-get install gcc-mingw-w64
-          sudo apt-get install g++-mingw-w64
+          sudo apt-get install binutils-mingw-w64 gcc-mingw-w64 g++-mingw-w64
         fi
 
     # Set up build environment (macOS build system)
     - name: Install dependency packages for macOS
       if: ${{ runner.os == 'macOS' }}
       run: |
-        brew install autoconf automake bash binutils gawk gnu-sed help2man
-        brew install ncurses
+        brew install autoconf automake bash binutils gawk gnu-sed help2man \
+                     ncurses
 
     - name: Create case sensitive workspace volume for macOS
       if: ${{ runner.os == 'macOS' }}
