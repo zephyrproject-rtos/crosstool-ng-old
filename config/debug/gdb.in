@@ -5,6 +5,10 @@
 source "config/debug/gdb.in.cross"
 source "config/debug/gdb.in.native"
 
+config GDB_HAS_SOURCE_HIGHLIGHT
+    bool
+    default y if GDB_8_3_or_later
+
 config GDB_HAS_PKGVERSION_BUGURL
     bool
     default y if GDB_7_0_or_later

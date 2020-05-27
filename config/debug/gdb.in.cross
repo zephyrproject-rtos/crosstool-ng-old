@@ -26,6 +26,15 @@ config GDB_CROSS_STATIC
       That way, you can share the cross-gdb without installing a toolchain
       on every machine that will be used to debug target programs.
 
+config GDB_CROSS_STATIC_LIBSTDCXX
+    bool
+    prompt "Link against static libstdc+++"
+    depends on !GDB_CROSS_STATIC
+    default y
+    help
+      Say 'y' if you do not want gdb to require libstdc++ and libgcc shared
+      libraries on the host.
+
 config GDB_CROSS_SIM
     bool
     prompt "Enable 'sim'"
@@ -33,6 +42,17 @@ config GDB_CROSS_SIM
       Say 'y' here if you want to build the 'sim' emulator.
       You probably don't want it, unless you are building for bare-metal.
       The default is 'n'.
+
+config GDB_CROSS_SOURCE_HIGHLIGHT
+    bool
+    prompt "Enable source highlight"
+    depends on GDB_HAS_SOURCE_HIGHLIGHT
+    depends on !GDB_CROSS_STATIC_LIBSTDCXX
+    help
+      Say 'y' if you want to enable source code syntax highlighting in the gdb
+      TUI.
+
+      Note that this feature cannot be enabled when static linking libstdc++.
 
 config GDB_CROSS_PYTHON
     bool

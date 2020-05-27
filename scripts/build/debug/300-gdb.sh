@@ -25,6 +25,15 @@ do_debug_gdb_build()
         CT_mkdir_pushd "${CT_BUILD_DIR}/build-gdb-cross"
 
         cross_extra_config=( "${CT_GDB_CROSS_EXTRA_CONFIG_ARRAY[@]}" )
+
+        if [ "${CT_GDB_HAS_SOURCE_HIGHLIGHT}" = "y" ]; then
+            if [ "${CT_GDB_CROSS_SOURCE_HIGHLIGHT}" = "y" ]; then
+                cross_extra_config+=("--enable-source-highlight")
+            else
+                cross_extra_config+=("--disable-source-highlight")
+            fi
+        fi
+
         if [ "${CT_GDB_CROSS_PYTHON}" = "y" ]; then
             if [ -z "${CT_GDB_CROSS_PYTHON_BINARY}" ]; then
                 if [ "${CT_CANADIAN}" = "y" -o "${CT_CROSS_NATIVE}" = "y" ]; then
@@ -62,6 +71,7 @@ do_debug_gdb_build()
             ldflags="${CT_LDFLAGS_FOR_HOST}" \
             prefix="${CT_PREFIX_DIR}" \
             static="${CT_GDB_CROSS_STATIC}" \
+            static_libstdcxx="${CT_GDB_CROSS_STATIC_LIBSTDCXX}" \
             --with-sysroot="${CT_SYSROOT_DIR}"          \
             "${cross_extra_config[@]}"
 
@@ -152,7 +162,7 @@ do_debug_gdb_build()
             cflags="${CT_ALL_TARGET_CFLAGS}" \
             ldflags="${CT_ALL_TARGET_LDFLAGS}" \
             static="${CT_GDB_NATIVE_STATIC}" \
-            static_libstdc="${CT_GDB_NATIVE_STATIC_LIBSTDC}" \
+            static_libstdcxx="${CT_GDB_NATIVE_STATIC_LIBSTDCXX}" \
             prefix=/usr \
             destdir="${CT_DEBUGROOT_DIR}" \
             "${native_extra_config[@]}"
@@ -248,7 +258,8 @@ do_gdb_backend()
         cflags+=" -static"
         ldflags+=" -static"
     fi
-    if [ "${static_libstdc}" = "y" ]; then
+    if [ "${static_libstdcxx}" = "y" ]; then
+        ldflags+=" -static-libgcc"
         ldflags+=" -static-libstdc++"
     fi
 
