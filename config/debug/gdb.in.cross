@@ -43,6 +43,17 @@ config GDB_CROSS_SIM
       You probably don't want it, unless you are building for bare-metal.
       The default is 'n'.
 
+config GDB_CROSS_SOURCE_HIGHLIGHT
+    bool
+    prompt "Enable source highlight"
+    depends on GDB_HAS_SOURCE_HIGHLIGHT
+    depends on !GDB_CROSS_STATIC_LIBSTDCXX
+    help
+      Say 'y' if you want to enable source code syntax highlighting in the gdb
+      TUI.
+
+      Note that this feature cannot be enabled when static linking libstdc++.
+
 config GDB_CROSS_PYTHON
     bool
     prompt "Enable python scripting"
