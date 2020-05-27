@@ -1,0 +1,32 @@
+From ee7042fd8f8c7fc093a84949ec7e5aa626ebf4d3 Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Thu, 28 May 2020 12:50:36 +0900
+Subject: [PATCH] Build gdb readline without curses
+
+On Windows/MinGW systems, building readline with ncurses causes input
+key handling issues (e.g. backspace and arrow keys do not function
+properly).
+
+This patch forces the local readline library used by the gdb to be
+built without ncurses (or any curses for that matter).
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ Makefile.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Makefile.in b/Makefile.in
+index 1aabf6ede4..8831a672ff 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -25511,6 +25511,7 @@ configure-readline:
+ 	  --srcdir=$${topdir}/$$module_srcdir \
+ 	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \
+ 	  --target=${target_alias}  \
++	  --without-curses \
+ 	  || exit 1
+ @endif readline
+ 
+-- 
+2.26.2
+
