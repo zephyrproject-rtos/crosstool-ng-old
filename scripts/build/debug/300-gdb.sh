@@ -25,6 +25,15 @@ do_debug_gdb_build()
         CT_mkdir_pushd "${CT_BUILD_DIR}/build-gdb-cross"
 
         cross_extra_config=( "${CT_GDB_CROSS_EXTRA_CONFIG_ARRAY[@]}" )
+
+        if [ "${CT_GDB_HAS_SOURCE_HIGHLIGHT}" = "y" ]; then
+            if [ "${CT_GDB_CROSS_SOURCE_HIGHLIGHT}" = "y" ]; then
+                cross_extra_config+=("--enable-source-highlight")
+            else
+                cross_extra_config+=("--disable-source-highlight")
+            fi
+        fi
+
         if [ "${CT_GDB_CROSS_PYTHON}" = "y" ]; then
             if [ -z "${CT_GDB_CROSS_PYTHON_BINARY}" ]; then
                 if [ "${CT_CANADIAN}" = "y" -o "${CT_CROSS_NATIVE}" = "y" ]; then
