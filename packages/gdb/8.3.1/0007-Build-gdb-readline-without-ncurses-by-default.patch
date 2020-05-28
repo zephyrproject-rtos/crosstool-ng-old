@@ -1,0 +1,33 @@
+From e209289e74bf0b74cf736d6d627b178cec5f956f Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Thu, 28 May 2020 12:50:36 +0900
+Subject: [PATCH] Build gdb readline without ncurses by default
+
+On Windows/MinGW systems, building readline with ncurses causes input
+key handling issues (e.g. backspace and arrow keys do not function
+properly).
+
+This patch changes the default configuration to use against the termcap
+instead of the ncurses, unless `--with-curses` option is specified.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ readline/configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/readline/configure b/readline/configure
+index c35e72acbb..16840ba419 100755
+--- a/readline/configure
++++ b/readline/configure
+@@ -5849,7 +5849,7 @@ LIBS=$ac_check_lib_save_LIBS
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ncurses_tgetent" >&5
+ $as_echo "$ac_cv_lib_ncurses_tgetent" >&6; }
+-if test "x$ac_cv_lib_ncurses_tgetent" = xyes; then :
++if test "x$ac_cv_lib_ncurses_tgetent" = xyes && test "$prefer_curses" = yes; then :
+   bash_cv_termcap_lib=libncurses
+ else
+   bash_cv_termcap_lib=gnutermcap
+-- 
+2.26.2
+
