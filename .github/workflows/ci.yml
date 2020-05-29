@@ -47,7 +47,8 @@ jobs:
     - name: Install dependency packages for Linux
       if: ${{ matrix.host.build == 'ubuntu-18.04' }}
       run: |
-        sudo apt-get install bison flex gettext help2man libncurses5-dev \
+        sudo apt-get install bison flex gettext help2man libboost-dev \
+                             libboost-regex-dev libncurses5-dev \
                              libtool-bin libtool-doc texinfo
 
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
@@ -58,8 +59,8 @@ jobs:
     - name: Install dependency packages for macOS
       if: ${{ runner.os == 'macOS' }}
       run: |
-        brew install autoconf automake bash binutils gawk gnu-sed gnu-tar \
-                     help2man ncurses
+        brew install autoconf automake bash binutils boost gawk gnu-sed \
+                     gnu-tar help2man ncurses
 
     - name: Create case sensitive workspace volume for macOS
       if: ${{ runner.os == 'macOS' }}
