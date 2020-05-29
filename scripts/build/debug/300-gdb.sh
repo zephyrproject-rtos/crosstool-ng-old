@@ -72,7 +72,6 @@ do_debug_gdb_build()
             prefix="${CT_PREFIX_DIR}" \
             static="${CT_GDB_CROSS_STATIC}" \
             static_libstdcxx="${CT_GDB_CROSS_STATIC_LIBSTDCXX}" \
-            --with-sysroot="${CT_SYSROOT_DIR}"          \
             "${cross_extra_config[@]}"
 
         if [ "${CT_BUILD_MANUALS}" = "y" ]; then
