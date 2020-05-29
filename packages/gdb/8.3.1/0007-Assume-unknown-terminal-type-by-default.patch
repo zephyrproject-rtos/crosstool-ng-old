@@ -1,0 +1,35 @@
+From 578f08ecaafe53b4a3dcff8406692e8e25daf443 Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Fri, 29 May 2020 12:42:47 +0900
+Subject: [PATCH] Assume "unknown" terminal type by default
+
+This patch modifies the `_rl_init_terminal_io` function to pass
+`unknown` terminal type instead of `dumb` when no terminal name is
+provided by the caller (e.g. when the `TERM` environment variable is
+not set on Win32).
+
+This ensures that the termcap provider (e.g. ncurses) resolves the
+default preferred terminal type instead of using the `dumb` terminal
+type.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ readline/terminal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/readline/terminal.c b/readline/terminal.c
+index 8094186bba..0d0a5f8698 100644
+--- a/readline/terminal.c
++++ b/readline/terminal.c
+@@ -442,7 +442,7 @@ _rl_init_terminal_io (terminal_name)
+   tty = rl_instream ? fileno (rl_instream) : 0;
+ 
+   if (term == 0)
+-    term = "dumb";
++    term = "unknown";
+ 
+ #ifdef __MSDOS__
+   _rl_term_im = _rl_term_ei = _rl_term_ic = _rl_term_IC = (char *)NULL;
+-- 
+2.26.2
+
