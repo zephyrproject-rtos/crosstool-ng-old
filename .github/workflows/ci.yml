@@ -49,7 +49,7 @@ jobs:
       run: |
         sudo apt-get install bison flex gettext help2man libboost-dev \
                              libboost-regex-dev libncurses5-dev \
-                             libtool-bin libtool-doc texinfo
+                             libtool-bin libtool-doc pkg-config texinfo
 
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
           sudo apt-get install binutils-mingw-w64 gcc-mingw-w64 g++-mingw-w64
@@ -60,7 +60,7 @@ jobs:
       if: ${{ runner.os == 'macOS' }}
       run: |
         brew install autoconf automake bash binutils boost gawk gnu-sed \
-                     gnu-tar help2man ncurses
+                     gnu-tar help2man ncurses pkg-config
 
     - name: Create case sensitive workspace volume for macOS
       if: ${{ runner.os == 'macOS' }}
