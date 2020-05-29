@@ -47,7 +47,7 @@ config GDB_CROSS_SOURCE_HIGHLIGHT
     bool
     prompt "Enable source highlight"
     depends on GDB_HAS_SOURCE_HIGHLIGHT
-    depends on !GDB_CROSS_STATIC_LIBSTDCXX
+    select SOURCE_HIGHLIGHT_NEEDED
     help
       Say 'y' if you want to enable source code syntax highlighting in the gdb
       TUI.
