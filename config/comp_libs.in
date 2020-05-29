@@ -97,6 +97,10 @@ config NCURSES_TARGET
     bool
     select COMP_LIBS_NCURSES
 
+config SOURCE_HIGHLIGHT_NEEDED
+    bool
+    select COMP_LIBS_SOURCE_HIGHLIGHT
+
 config ZLIB_NEEDED
     bool "Build local zlib"
     select COMP_LIBS_ZLIB
@@ -141,6 +145,10 @@ config EXPAT
 config NCURSES
     def_bool y
     depends on NCURSES_NEEDED
+
+config SOURCE_HIGHLIGHT
+    def_bool y
+    depends on SOURCE_HIGHLIGHT_NEEDED
 
 config ZLIB
     def_bool y

@@ -1,0 +1,33 @@
+From 5b5626840ca3354f6f3c37223c8f07cfd6cfbe7d Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Sat, 30 May 2020 00:19:30 +0900
+Subject: [PATCH] Skip building documentation
+
+The documentation build process executes the locally built host
+source-highlight executable and this prevents cross compilation from
+completing successfully.
+
+This patch removes the documentation build completely until this
+problem can be resolved.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 7234c1f..72d7690 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -8,7 +8,7 @@
+ # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+ # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ 
+-SUBDIRS = m4 gl lib src doc tests
++SUBDIRS = m4 gl lib src tests
+ 
+ EXTRA_DIST = \
+ 	source-highlight.spec.in \
+-- 
+2.26.2
+
