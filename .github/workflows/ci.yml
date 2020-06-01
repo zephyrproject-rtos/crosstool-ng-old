@@ -139,7 +139,22 @@ jobs:
           cat <<EOF >> .config
         CT_CANADIAN=y
         CT_HOST="x86_64-w64-mingw32"
-        CT_GDB_CROSS_PYTHON=n
+        EOF
+        fi
+
+        # Configure Windows Python library
+        if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
+          # Clone mingw-w64-libpython cross compilation kit
+          git clone \
+            https://github.com/stephanosio/mingw-w64-libpython.git \
+            ${WORKSPACE}/mingw-w64-libpython
+
+          # Use Python 3.6.8
+          export LIBPYTHON_KIT_ROOT=${WORKSPACE}/mingw-w64-libpython/python-3.6.8
+
+          # Set Python configuration resolver for GDB
+          cat <<EOF >> .config
+        CT_GDB_CROSS_PYTHON_BINARY="${LIBPYTHON_KIT_ROOT}/bin/python"
         EOF
         fi
 
