@@ -258,11 +258,20 @@ do_gdb_backend()
         cflags+=" -static"
         ldflags+=" -static"
     fi
-    if [ "${static_libstdcxx}" = "y" ]; then
-        ldflags+=" -static-libgcc"
-        ldflags+=" -static-libstdc++"
-    fi
 
+    if [ "${static_libstdcxx}" = "y" ]; then
+        case "$CT_HOST" in
+            *darwin*)
+                # macOS builds with clang and provides a well known execution
+                # environment, so there is little point in static linking the
+                # C++ runtime library -- ignore this option for now.
+                ;;
+            *)
+                ldflags+=" -static-libgcc"
+                ldflags+=" -static-libstdc++"
+                ;;
+        esac
+    fi
 
     # Fix up whitespace. Some older GDB releases (e.g. 6.8a) get confused if there
     # are multiple consecutive spaces: sub-configure scripts replace them with a
