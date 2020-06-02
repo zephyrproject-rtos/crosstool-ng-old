@@ -1,0 +1,58 @@
+From d7f00ed165e9a1360eb3b7c4a01efc8a4ef4c2fa Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Tue, 2 Jun 2020 09:45:41 +0900
+Subject: [PATCH] gdb: Disable source-highlight static libstdc++ check
+
+This patch removes the libstdc++ static linking prevention check when
+the libsource-highlight (aka. GNU Source Highlight) library is used.
+
+The commit d806ea2d0ef362fcddd2c1659f537b68aa114203 introduced this
+requirement in order to prevent exception handling issues when mixing
+dynamic C++ libraries and static libstdc++; however, this restriction
+does not apply when all linked C++ libraries are in the static form.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ gdb/configure    | 6 ------
+ gdb/configure.ac | 8 --------
+ 2 files changed, 14 deletions(-)
+
+diff --git a/gdb/configure b/gdb/configure
+index b572d414ca..f659a4772b 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -11344,12 +11344,6 @@ $as_echo "no - pkg-config not found" >&6; }
+       as_fn_error $? "pkg-config was not found in your system" "$LINENO" 5
+     fi
+   else
+-    case "$LDFLAGS" in
+-      *static-libstdc*)
+-        as_fn_error $? "source highlight is incompatible with -static-libstdc++; either use --disable-source-highlight or --without-static-standard-libraries" "$LINENO" 5
+-        ;;
+-    esac
+-
+     if ${pkg_config_prog_path} --exists source-highlight; then
+       SRCHIGH_CFLAGS=`${pkg_config_prog_path} --cflags source-highlight`
+       SRCHIGH_LIBS=`${pkg_config_prog_path} --libs source-highlight`
+diff --git a/gdb/configure.ac b/gdb/configure.ac
+index ca0da7980c..6d5526a516 100644
+--- a/gdb/configure.ac
++++ b/gdb/configure.ac
+@@ -1179,14 +1179,6 @@ if test "${enable_source_highlight}" != "no"; then
+       AC_MSG_ERROR([pkg-config was not found in your system])
+     fi
+   else
+-    case "$LDFLAGS" in
+-      *static-libstdc*)
+-        AC_MSG_ERROR([source highlight is incompatible with -static-libstdc++; dnl
+-either use --disable-source-highlight or dnl
+---without-static-standard-libraries])
+-        ;;
+-    esac
+-
+     if ${pkg_config_prog_path} --exists source-highlight; then
+       SRCHIGH_CFLAGS=`${pkg_config_prog_path} --cflags source-highlight`
+       SRCHIGH_LIBS=`${pkg_config_prog_path} --libs source-highlight`
+-- 
+2.26.2
+

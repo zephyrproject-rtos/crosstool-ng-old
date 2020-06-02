@@ -1,0 +1,67 @@
+From 2415ad3e686c1880a2938fc510c35996e9a802cb Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Tue, 2 Jun 2020 13:40:25 +0900
+Subject: [PATCH] gdb: Resolve local source-highlight data directory
+
+The source-highlight data directory, which contains the input language
+and output format definition files, is currently resolved by the
+source-highlight library as one of the following:
+
+ * Path specified by the environment variable SOURCE_HIGHLIGHT_DATADIR
+ * Path specified by the source-highlight configuration file under HOME
+ * Internally hard-coded path based on the installation prefix
+
+This is less than ideal because users need to install a copy of the
+source-highlight program on their system, and either manually set the
+SOURCE_HIGHLIGHT_DATADIR environment variable to the path of the
+directory containing the source-highlight data files or provide a
+source-highlight configuration file under HOME that specifies the data
+directory path.
+
+This patch adds the logic to resolve, when exists, the path of the
+source-highlight data directory embedded in the gdb data directory,
+such that the source code syntax highlighting feature can function
+independent of the host system dependencies and configurations.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ gdb/source-cache.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/gdb/source-cache.c b/gdb/source-cache.c
+index 0561a26737..aa1b5b3dc7 100644
+--- a/gdb/source-cache.c
++++ b/gdb/source-cache.c
+@@ -35,6 +35,7 @@
+ #undef close
+ #include <sstream>
+ #include <srchilite/sourcehighlight.h>
++#include <srchilite/settings.h>
+ #include <srchilite/langmap.h>
+ #endif
+ 
+@@ -194,6 +195,21 @@ source_cache::ensure (struct symtab *s)
+ 	    {
+ 	      if (highlighter == nullptr)
+ 		{
++		  /* Configure source-highlight data directory path to the GDB
++		   * local data directory path unless it is missing */
++		  std::string datadir = gdb_datadir + "/source-highlight";
++
++		  struct stat st;
++		  static srchilite::Settings settings;
++
++		  if (stat (datadir.c_str (), &st) == 0
++		      && S_ISDIR (st.st_mode))
++		    {
++		      settings.setGlobalDataDir(datadir);
++		    }
++
++		  /* Create a highlighter instance that outputs the ANSI
++		   * escape code-based color output */
+ 		  highlighter = new srchilite::SourceHighlight ("esc.outlang");
+ 		  highlighter->setStyleFile ("esc.style");
+ 		}
+-- 
+2.26.2
+
