@@ -15,168 +15,206 @@ do_debug_gdb_extract()
     chmod a+x "${CT_SRC_DIR}/gdb/gdb/gdbserver/configure"
 }
 
+do_debug_gdb_build_cross()
+{
+    local progprefix progsuffix usepython
+    local gcc_version p _p
+    local -a cross_extra_config
+
+    for arg in "$@"; do
+        case "$arg" in
+            *)
+                eval "${arg// /\\ }"
+                ;;
+        esac
+    done
+
+    CT_DoStep INFO "Installing cross-${progprefix}gdb${progsuffix}"
+    CT_mkdir_pushd "${CT_BUILD_DIR}/build-${progprefix}gdb${progsuffix}-cross"
+
+    cross_extra_config=( "${CT_GDB_CROSS_EXTRA_CONFIG_ARRAY[@]}" )
+
+    if [ -n "${progprefix}" ]; then
+        cross_extra_config+=("--program-prefix=${progprefix}")
+    fi
+
+    if [ -n "${progsuffix}" ]; then
+        cross_extra_config+=("--program-suffix=${progsuffix}")
+    fi
+
+    if [ "${CT_GDB_HAS_SOURCE_HIGHLIGHT}" = "y" ]; then
+        if [ "${CT_GDB_CROSS_SOURCE_HIGHLIGHT}" = "y" ]; then
+            cross_extra_config+=("--enable-source-highlight")
+        else
+            cross_extra_config+=("--disable-source-highlight")
+        fi
+    fi
+
+    if [ "${usepython}" = "y" ]; then
+        if [ -z "${CT_GDB_CROSS_PYTHON_BINARY}" ]; then
+            if [ "${CT_CANADIAN}" = "y" -o "${CT_CROSS_NATIVE}" = "y" ]; then
+                CT_Abort "For canadian build, Python wrapper runnable on the build machine must be provided. Set CT_GDB_CROSS_PYTHON_BINARY."
+            elif [ "${CT_CONFIGURE_has_python}" = "y" ]; then
+                cross_extra_config+=("--with-python=${python}")
+            else
+                CT_Abort "Python support requested in GDB, but Python not found. Set CT_GDB_CROSS_PYTHON_BINARY."
+            fi
+        else
+            cross_extra_config+=("--with-python=${CT_GDB_CROSS_PYTHON_BINARY}")
+        fi
+    else
+        cross_extra_config+=("--with-python=no")
+    fi
+
+    if [ "${CT_GDB_CROSS_SIM}" = "y" ]; then
+        cross_extra_config+=("--enable-sim")
+    else
+        cross_extra_config+=("--disable-sim")
+    fi
+
+    if ${CT_HOST}-gcc --version 2>&1 | grep clang; then
+        # clang detects the line from gettext's _ macro as format string
+        # not being a string literal and produces a lot of warnings - which
+        # ct-ng's logger faithfully relays to user if this happens in the
+        # error() function. Suppress them.
+        cross_extra_config+=("--enable-build-warnings=,-Wno-format-nonliteral,-Wno-format-security")
+    fi
+
+    do_gdb_backend \
+        buildtype=cross \
+        host="${CT_HOST}" \
+        cflags="${CT_CFLAGS_FOR_HOST}" \
+        ldflags="${CT_LDFLAGS_FOR_HOST}" \
+        prefix="${CT_PREFIX_DIR}" \
+        static="${CT_GDB_CROSS_STATIC}" \
+        static_libstdcxx="${CT_GDB_CROSS_STATIC_LIBSTDCXX}" \
+        --with-sysroot="${CT_SYSROOT_DIR}"          \
+        "${cross_extra_config[@]}"
+
+    if [ "${CT_BUILD_MANUALS}" = "y" ]; then
+        CT_DoLog EXTRA "Building and installing the cross-GDB manuals"
+        CT_DoExecLog ALL make ${CT_JOBSFLAGS} pdf html
+        CT_DoExecLog ALL make install-{pdf,html}-gdb
+    fi
+
+    if [ "${CT_GDB_INSTALL_GDBINIT}" = "y" ]; then
+        CT_DoLog EXTRA "Installing '.gdbinit' template"
+        # See in scripts/build/internals.sh for why we do this
+        # TBD GCC 3.x and older not supported
+        if [ -f "${CT_SRC_DIR}/gcc/gcc/BASE-VER" ]; then
+            gcc_version=$(cat "${CT_SRC_DIR}/gcc/gcc/BASE-VER")
+        else
+            gcc_version=$(sed -r -e '/version_string/!d; s/^.+= "([^"]+)".*$/\1/;'   \
+                               "${CT_SRC_DIR}/gcc/gcc/version.c"   \
+                         )
+        fi
+        sed -r                                                  \
+               -e "s:@@PREFIX@@:${CT_PREFIX_DIR}:;"             \
+               -e "s:@@VERSION@@:${gcc_version}:;"              \
+               "${CT_LIB_DIR}/scripts/build/debug/gdbinit.in"   \
+               >"${CT_PREFIX_DIR}/share/gdb/gdbinit"
+    fi # Install gdbinit sample
+
+    CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-gdb-cross directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-gdb-cross"
+    fi
+
+    CT_EndStep
+}
+
+do_debug_gdb_build_native()
+{
+    local -a native_extra_config
+    local subdir
+
+    CT_DoStep INFO "Installing native gdb"
+    CT_mkdir_pushd "${CT_BUILD_DIR}/build-gdb-native"
+
+    native_extra_config+=("--program-prefix=")
+
+    # GDB on Mingw depends on PDcurses, not ncurses
+    if [ "${CT_MINGW32}" != "y" ]; then
+        native_extra_config+=("--with-curses")
+    fi
+
+    # Build a native gdbserver if needed. If building only
+    # gdbserver, configure in the subdirectory.
+    # Newer versions enable it automatically for a native target by default.
+    if [ "${CT_GDB_GDBSERVER}" != "y" ]; then
+        native_extra_config+=("--disable-gdbserver")
+    else
+        native_extra_config+=("--enable-gdbserver")
+        if [ "${CT_GDB_NATIVE}" != "y" ]; then
+            subdir=gdb/gdbserver/
+        fi
+    fi
+    if [ "${CT_GDB_NATIVE_BUILD_IPA_LIB}" = "y" ]; then
+        native_extra_config+=("--enable-inprocess-agent")
+    else
+        native_extra_config+=("--disable-inprocess-agent")
+    fi
+
+    export ac_cv_func_strncmp_works=yes
+
+    # TBD do we need all these? Eg why do we disable TUI if we build curses for target?
+    native_extra_config+=(
+        --without-uiout
+        --disable-tui
+        --disable-gdbtk
+        --without-x
+        --disable-sim
+        --without-included-gettext
+        --without-develop
+        --sysconfdir=/etc
+        --localstatedir=/var
+    )
+
+    do_gdb_backend \
+        buildtype=native \
+        subdir=${subdir} \
+        host="${CT_TARGET}" \
+        cflags="${CT_ALL_TARGET_CFLAGS}" \
+        ldflags="${CT_ALL_TARGET_LDFLAGS}" \
+        static="${CT_GDB_NATIVE_STATIC}" \
+        static_libstdcxx="${CT_GDB_NATIVE_STATIC_LIBSTDCXX}" \
+        prefix=/usr \
+        destdir="${CT_DEBUGROOT_DIR}" \
+        "${native_extra_config[@]}"
+
+    unset ac_cv_func_strncmp_works
+
+    CT_Popd
+
+    if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
+        CT_DoLog EXTRA "Cleaning build-gdb-native directory"
+        CT_DoForceRmdir "${CT_BUILD_DIR}/build-gdb-native"
+    fi
+
+    CT_EndStep # native gdb build
+}
+
 do_debug_gdb_build()
 {
     if [ "${CT_GDB_CROSS}" = "y" ]; then
-        local gcc_version p _p
-        local -a cross_extra_config
+        if [ "${CT_GDB_CROSS_PYTHON_VARIANT}" = "y" ]; then
+            do_debug_gdb_build_cross \
+                usepython=n
 
-        CT_DoStep INFO "Installing cross-gdb"
-        CT_mkdir_pushd "${CT_BUILD_DIR}/build-gdb-cross"
-
-        cross_extra_config=( "${CT_GDB_CROSS_EXTRA_CONFIG_ARRAY[@]}" )
-
-        if [ "${CT_GDB_HAS_SOURCE_HIGHLIGHT}" = "y" ]; then
-            if [ "${CT_GDB_CROSS_SOURCE_HIGHLIGHT}" = "y" ]; then
-                cross_extra_config+=("--enable-source-highlight")
-            else
-                cross_extra_config+=("--disable-source-highlight")
-            fi
-        fi
-
-        if [ "${CT_GDB_CROSS_PYTHON}" = "y" ]; then
-            if [ -z "${CT_GDB_CROSS_PYTHON_BINARY}" ]; then
-                if [ "${CT_CANADIAN}" = "y" -o "${CT_CROSS_NATIVE}" = "y" ]; then
-                    CT_Abort "For canadian build, Python wrapper runnable on the build machine must be provided. Set CT_GDB_CROSS_PYTHON_BINARY."
-                elif [ "${CT_CONFIGURE_has_python}" = "y" ]; then
-                    cross_extra_config+=("--with-python=${python}")
-                else
-                    CT_Abort "Python support requested in GDB, but Python not found. Set CT_GDB_CROSS_PYTHON_BINARY."
-                fi
-            else
-                cross_extra_config+=("--with-python=${CT_GDB_CROSS_PYTHON_BINARY}")
-            fi
+            do_debug_gdb_build_cross \
+                usepython=y \
+                progprefix="${CT_TARGET}-" \
+                progsuffix="-py"
         else
-            cross_extra_config+=("--with-python=no")
+            do_debug_gdb_build_cross \
+                usepython="${CT_GDB_CROSS_PYTHON}"
         fi
-
-        if [ "${CT_GDB_CROSS_SIM}" = "y" ]; then
-            cross_extra_config+=("--enable-sim")
-        else
-            cross_extra_config+=("--disable-sim")
-        fi
-
-        if ${CT_HOST}-gcc --version 2>&1 | grep clang; then
-            # clang detects the line from gettext's _ macro as format string
-            # not being a string literal and produces a lot of warnings - which
-            # ct-ng's logger faithfully relays to user if this happens in the
-            # error() function. Suppress them.
-            cross_extra_config+=("--enable-build-warnings=,-Wno-format-nonliteral,-Wno-format-security")
-        fi
-
-        do_gdb_backend \
-            buildtype=cross \
-            host="${CT_HOST}" \
-            cflags="${CT_CFLAGS_FOR_HOST}" \
-            ldflags="${CT_LDFLAGS_FOR_HOST}" \
-            prefix="${CT_PREFIX_DIR}" \
-            static="${CT_GDB_CROSS_STATIC}" \
-            static_libstdcxx="${CT_GDB_CROSS_STATIC_LIBSTDCXX}" \
-            --with-sysroot="${CT_SYSROOT_DIR}"          \
-            "${cross_extra_config[@]}"
-
-        if [ "${CT_BUILD_MANUALS}" = "y" ]; then
-            CT_DoLog EXTRA "Building and installing the cross-GDB manuals"
-            CT_DoExecLog ALL make ${CT_JOBSFLAGS} pdf html
-            CT_DoExecLog ALL make install-{pdf,html}-gdb
-        fi
-
-        if [ "${CT_GDB_INSTALL_GDBINIT}" = "y" ]; then
-            CT_DoLog EXTRA "Installing '.gdbinit' template"
-            # See in scripts/build/internals.sh for why we do this
-            # TBD GCC 3.x and older not supported
-            if [ -f "${CT_SRC_DIR}/gcc/gcc/BASE-VER" ]; then
-                gcc_version=$(cat "${CT_SRC_DIR}/gcc/gcc/BASE-VER")
-            else
-                gcc_version=$(sed -r -e '/version_string/!d; s/^.+= "([^"]+)".*$/\1/;'   \
-                                   "${CT_SRC_DIR}/gcc/gcc/version.c"   \
-                             )
-            fi
-            sed -r                                                  \
-                   -e "s:@@PREFIX@@:${CT_PREFIX_DIR}:;"             \
-                   -e "s:@@VERSION@@:${gcc_version}:;"              \
-                   "${CT_LIB_DIR}/scripts/build/debug/gdbinit.in"   \
-                   >"${CT_PREFIX_DIR}/share/gdb/gdbinit"
-        fi # Install gdbinit sample
-
-        CT_Popd
-
-        if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
-            CT_DoLog EXTRA "Cleaning build-gdb-cross directory"
-            CT_DoForceRmdir "${CT_BUILD_DIR}/build-gdb-cross"
-        fi
-
-        CT_EndStep
     fi
 
     if [ "${CT_GDB_NATIVE}" = "y" -o "${CT_GDB_GDBSERVER}" = "y" ]; then
-        local -a native_extra_config
-        local subdir
-
-        CT_DoStep INFO "Installing native gdb"
-        CT_mkdir_pushd "${CT_BUILD_DIR}/build-gdb-native"
-
-        native_extra_config+=("--program-prefix=")
-
-        # GDB on Mingw depends on PDcurses, not ncurses
-        if [ "${CT_MINGW32}" != "y" ]; then
-            native_extra_config+=("--with-curses")
-        fi
-
-        # Build a native gdbserver if needed. If building only
-        # gdbserver, configure in the subdirectory.
-        # Newer versions enable it automatically for a native target by default.
-        if [ "${CT_GDB_GDBSERVER}" != "y" ]; then
-            native_extra_config+=("--disable-gdbserver")
-        else
-            native_extra_config+=("--enable-gdbserver")
-            if [ "${CT_GDB_NATIVE}" != "y" ]; then
-                subdir=gdb/gdbserver/
-            fi
-        fi
-        if [ "${CT_GDB_NATIVE_BUILD_IPA_LIB}" = "y" ]; then
-            native_extra_config+=("--enable-inprocess-agent")
-        else
-            native_extra_config+=("--disable-inprocess-agent")
-        fi
-
-        export ac_cv_func_strncmp_works=yes
-
-        # TBD do we need all these? Eg why do we disable TUI if we build curses for target?
-        native_extra_config+=(
-            --without-uiout
-            --disable-tui
-            --disable-gdbtk
-            --without-x
-            --disable-sim
-            --without-included-gettext
-            --without-develop
-            --sysconfdir=/etc
-            --localstatedir=/var
-        )
-
-        do_gdb_backend \
-            buildtype=native \
-            subdir=${subdir} \
-            host="${CT_TARGET}" \
-            cflags="${CT_ALL_TARGET_CFLAGS}" \
-            ldflags="${CT_ALL_TARGET_LDFLAGS}" \
-            static="${CT_GDB_NATIVE_STATIC}" \
-            static_libstdcxx="${CT_GDB_NATIVE_STATIC_LIBSTDCXX}" \
-            prefix=/usr \
-            destdir="${CT_DEBUGROOT_DIR}" \
-            "${native_extra_config[@]}"
-
-        unset ac_cv_func_strncmp_works
-
-        CT_Popd
-
-        if [ -n "${CT_CLEAN_AFTER_BUILD_STEP}" ]; then
-            CT_DoLog EXTRA "Cleaning build-gdb-native directory"
-            CT_DoForceRmdir "${CT_BUILD_DIR}/build-gdb-native"
-        fi
-
-        CT_EndStep # native gdb build
+        do_debug_gdb_build_native
     fi
 }
 
