@@ -47,8 +47,8 @@ jobs:
     - name: Install dependency packages for Linux
       if: ${{ matrix.host.build == 'ubuntu-18.04' }}
       run: |
-        sudo apt-get install bison flex gettext help2man libboost-dev \
-                             libboost-regex-dev libncurses5-dev \
+        sudo apt-get install autoconf automake bison flex gettext help2man \
+                             libboost-dev libboost-regex-dev libncurses5-dev \
                              libtool-bin libtool-doc pkg-config texinfo
 
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
