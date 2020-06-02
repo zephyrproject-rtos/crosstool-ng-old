@@ -68,6 +68,31 @@ jobs:
         hdiutil create ${HOME}/Workspace.sparseimage -volname Workspace -type SPARSE -size 14g -fs HFSX
         hdiutil mount ${HOME}/Workspace.sparseimage
 
+    # Install libboost-regex for Windows host builds
+    - name: Install libboost-regex for Windows host builds
+      if: ${{ matrix.host.name == 'windows-x86_64' }}
+      run: |
+        mkdir -p ${HOME}/boost
+        pushd ${HOME}/boost
+
+        # Download and extract Boost library source code
+        wget https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.gz
+        tar xvf boost_1_73_0.tar.gz
+        cd boost_1_73_0
+
+        # Bootstrap builder
+        ./bootstrap.sh --with-toolset=gcc --with-libraries=regex --without-icu
+
+        # Use MinGW-w64 compiler
+        sed -i 's/using gcc ;/using gcc : mingw : x86_64-w64-mingw32-g++ ;/g' project-config.jam
+
+        # Build and install boost-regex library
+        sudo ./b2 install \
+          toolset=gcc-mingw link=static threading=multi variant=release \
+          --prefix=/usr/x86_64-w64-mingw32
+
+        popd
+
     # Check out source code
     - name: Check out source code
       uses: actions/checkout@v2
