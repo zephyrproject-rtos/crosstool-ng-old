@@ -1,0 +1,36 @@
+From 4830394235e6ad1e963129d84df01066838e088f Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Tue, 2 Jun 2020 11:51:59 +0900
+Subject: [PATCH] gdb: Display warning when source-highlight fails
+
+This patch adds the C++ exception handling for the source-highlight
+library function calls.
+
+Without this, the `highlighter->highlight (...)` call may silently
+fail when the data directory for the source-highlight library cannot
+be located.
+
+Signed-off-by: Stephanos Ioannidis <root@stephanos.io>
+---
+ gdb/source-cache.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/gdb/source-cache.c b/gdb/source-cache.c
+index 965dc380b1..0561a26737 100644
+--- a/gdb/source-cache.c
++++ b/gdb/source-cache.c
+@@ -203,6 +203,11 @@ source_cache::ensure (struct symtab *s)
+ 	      highlighter->highlight (input, output, lang_name, fullname);
+ 	      contents = output.str ();
+ 	    }
++	  catch (const std::exception &exc)
++	    {
++	      warning ("source-highlight: %s\n",
++	               exc.what());
++	    }
+ 	  catch (...)
+ 	    {
+ 	      /* Source Highlight will throw an exception if
+-- 
+2.26.2
+

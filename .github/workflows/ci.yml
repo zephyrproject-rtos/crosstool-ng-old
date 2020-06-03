@@ -47,8 +47,9 @@ jobs:
     - name: Install dependency packages for Linux
       if: ${{ matrix.host.build == 'ubuntu-18.04' }}
       run: |
-        sudo apt-get install bison flex gettext help2man libncurses5-dev \
-                             libtool-bin libtool-doc texinfo
+        sudo apt-get install autoconf automake bison flex gettext help2man \
+                             libboost-dev libboost-regex-dev libncurses5-dev \
+                             libtool-bin libtool-doc pkg-config texinfo
 
         if [ "${{ matrix.host.name }}" == "windows-x86_64" ]; then
           sudo apt-get install binutils-mingw-w64 gcc-mingw-w64 g++-mingw-w64
@@ -58,14 +59,39 @@ jobs:
     - name: Install dependency packages for macOS
       if: ${{ runner.os == 'macOS' }}
       run: |
-        brew install autoconf automake bash binutils gawk gnu-sed gnu-tar \
-                     help2man ncurses
+        brew install autoconf automake bash binutils boost gawk gnu-sed \
+                     gnu-tar help2man ncurses pkg-config
 
     - name: Create case sensitive workspace volume for macOS
       if: ${{ runner.os == 'macOS' }}
       run: |
         hdiutil create ${HOME}/Workspace.sparseimage -volname Workspace -type SPARSE -size 14g -fs HFSX
         hdiutil mount ${HOME}/Workspace.sparseimage
+
+    # Install libboost-regex for Windows host builds
+    - name: Install libboost-regex for Windows host builds
+      if: ${{ matrix.host.name == 'windows-x86_64' }}
+      run: |
+        mkdir -p ${HOME}/boost
+        pushd ${HOME}/boost
+
+        # Download and extract Boost library source code
+        wget https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.gz
+        tar xvf boost_1_73_0.tar.gz
+        cd boost_1_73_0
+
+        # Bootstrap builder
+        ./bootstrap.sh --with-toolset=gcc --with-libraries=regex --without-icu
+
+        # Use MinGW-w64 compiler
+        sed -i 's/using gcc ;/using gcc : mingw : x86_64-w64-mingw32-g++ ;/g' project-config.jam
+
+        # Build and install boost-regex library
+        sudo ./b2 install \
+          toolset=gcc-mingw link=static threading=multi variant=release \
+          --prefix=/usr/x86_64-w64-mingw32
+
+        popd
 
     # Check out source code
     - name: Check out source code

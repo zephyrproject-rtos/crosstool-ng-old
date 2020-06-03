@@ -80,6 +80,8 @@ do_debug_gdb_build_cross()
         cross_extra_config+=("--enable-build-warnings=,-Wno-format-nonliteral,-Wno-format-security")
     fi
 
+    export PKG_CONFIG_PATH="${CT_HOST_COMPLIBS_DIR}/lib/pkgconfig"
+
     do_gdb_backend \
         buildtype=cross \
         host="${CT_HOST}" \
@@ -90,6 +92,8 @@ do_debug_gdb_build_cross()
         static_libstdcxx="${CT_GDB_CROSS_STATIC_LIBSTDCXX}" \
         --with-sysroot="${CT_SYSROOT_DIR}"          \
         "${cross_extra_config[@]}"
+
+    unset PKG_CONFIG_PATH
 
     if [ "${CT_BUILD_MANUALS}" = "y" ]; then
         CT_DoLog EXTRA "Building and installing the cross-GDB manuals"
