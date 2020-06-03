@@ -263,6 +263,11 @@ newlib_copy_nano_multilibs()
     CT_DoExecLog ALL cp -f "${nano_lib_dir}/${CT_TARGET}/lib/${multi_dir}/libg.a" \
                            "${CT_PREFIX_DIR}/${CT_TARGET}/lib/${multi_dir}/libg_nano.a"
 
+    if [ -f ${nano_lib_dir}/${CT_TARGET}/lib/${multi_dir}/libgloss.a ]; then
+        CT_DoExecLog ALL cp -f "${nano_lib_dir}/${CT_TARGET}/lib/${multi_dir}/libgloss.a" \
+                               "${CT_PREFIX_DIR}/${CT_TARGET}/lib/${multi_dir}/libgloss_nano.a"
+    fi
+
     if [ -f ${nano_lib_dir}/${CT_TARGET}/lib/${multi_dir}/librdimon.a ]; then
         CT_DoExecLog ALL cp -f "${nano_lib_dir}/${CT_TARGET}/lib/${multi_dir}/librdimon.a" \
                                "${CT_PREFIX_DIR}/${CT_TARGET}/lib/${multi_dir}/librdimon_nano.a"
