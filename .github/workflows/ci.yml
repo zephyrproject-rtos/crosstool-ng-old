@@ -93,6 +93,16 @@ jobs:
 
         popd
 
+    # Check out cached source archives
+    - name: Check out cached source archives
+      run: |
+        git clone \
+          https://github.com/stephanosio/zephyr-crosstool-ng-cache.git \
+          ${HOME}/sources
+
+        # Remove all blob objects to save disk space
+        rm -rf ${HOME}/sources/.git
+
     # Check out source code
     - name: Check out source code
       uses: actions/checkout@v2
@@ -149,6 +159,7 @@ jobs:
 
         # Set build configurations
         cat <<EOF >> .config
+        CT_LOCAL_TARBALLS_DIR="${HOME}/sources"
         CT_CLEAN_AFTER_BUILD_STEP=y
         EOF
 
