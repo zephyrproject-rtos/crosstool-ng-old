@@ -91,7 +91,9 @@ jobs:
           toolset=gcc-mingw link=static threading=multi variant=release \
           --prefix=/usr/x86_64-w64-mingw32
 
+        # Clean up build directory to save disk space
         popd
+        sudo rm -rf ${HOME}/boost
 
     # Check out cached source archives
     - name: Check out cached source archives
