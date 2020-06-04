@@ -1,0 +1,124 @@
+From de7319366a0c3e2faa996eecaaffb6238bac5096 Mon Sep 17 00:00:00 2001
+From: Daniel Leung <danielcp@gmail.com>
+Date: Thu, 5 Mar 2020 14:00:07 -0800
+Subject: [PATCH 5/7] gdb: xtensa: use remote target register number...
+
+...instead of the sequential number defined in xtensa-config.c
+when retrieving registers from remote target, as the remote
+probe maps registers to their target numbers.
+
+Signed-off-by: Daniel Leung <danielcp@gmail.com>
+---
+ gdb/configure     | 20 ++++++++++++++++++++
+ gdb/configure.ac  | 14 ++++++++++++++
+ gdb/xtensa-tdep.c | 17 +++++++++++++++++
+ 3 files changed, 51 insertions(+)
+
+diff --git a/gdb/configure b/gdb/configure
+index 5d6f48edcf..250e7e0ea8 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -911,6 +911,7 @@ enable_sim
+ enable_gdbserver
+ with_babeltrace
+ with_libbabeltrace_prefix
++enable_xtensa_use_target_regnum
+ with_xxhash
+ with_libxxhash_prefix
+ enable_unit_tests
+@@ -1580,6 +1581,8 @@ Optional Features:
+   --enable-sim            link gdb with simulator
+   --enable-gdbserver      automatically build gdbserver (yes/no/auto, default
+                           is auto)
++  --enable-xtensa-use-target-regnum
++                          Use remote target register numbers (Xtensa target)
+   --enable-unit-tests     Enable the inclusion of unit tests when compiling
+                           GDB
+ 
+@@ -18400,6 +18403,23 @@ $as_echo "$as_me: WARNING: babeltrace is missing or unusable; GDB is unable to r
+   fi
+ fi
+ 
++# Xtensa to use target register number
++# Check whether --enable-xtensa-use-target-regnum was given.
++if test "${enable_xtensa_use_target_regnum+set}" = set; then :
++  enableval=$enable_xtensa_use_target_regnum; case $enableval in
++    yes | no)
++      enable_xtensa_use_target_regnum=$enableval ;;
++    *)
++      as_fn_error $? "bad value $enableval for --enable-xtensa-use-target-regnum" "$LINENO" 5 ;;
++  esac
++else
++  enable_xtensa_use_target_regnum=no
++fi
++
++if test x"$enable_xtensa_use_target_regnum" = xyes; then
++  CPPFLAGS="$CPPFLAGS -DXTENSA_USE_TGT_REGNUM"
++fi
++
+ # Check for xxhash
+ 
+ # Check whether --with-xxhash was given.
+diff --git a/gdb/configure.ac b/gdb/configure.ac
+index 589c725370..d889d2af0c 100644
+--- a/gdb/configure.ac
++++ b/gdb/configure.ac
+@@ -2167,6 +2167,20 @@ else
+   fi
+ fi
+ 
++# Xtensa to use target register number
++AC_ARG_ENABLE(xtensa-use-target-regnum,
++AS_HELP_STRING([--enable-xtensa-use-target-regnum], [Use remote target register numbers (Xtensa target)]),
++  [case $enableval in
++    yes | no)
++      enable_xtensa_use_target_regnum=$enableval ;;
++    *)
++      AC_MSG_ERROR([bad value $enableval for --enable-xtensa-use-target-regnum]) ;;
++  esac],
++  [enable_xtensa_use_target_regnum=no])
++if test x"$enable_xtensa_use_target_regnum" = xyes; then
++  CPPFLAGS="$CPPFLAGS -DXTENSA_USE_TGT_REGNUM"
++fi
++
+ # Check for xxhash
+ AC_ARG_WITH(xxhash,
+   AC_HELP_STRING([--with-xxhash], [use libxxhash for hashing (faster) (auto/yes/no)]),
+diff --git a/gdb/xtensa-tdep.c b/gdb/xtensa-tdep.c
+index d44c5b52c0..7d9e0c7d31 100644
+--- a/gdb/xtensa-tdep.c
++++ b/gdb/xtensa-tdep.c
+@@ -3145,6 +3145,19 @@ xtensa_derive_tdep (struct gdbarch_tdep *tdep)
+   tdep->max_register_virtual_size = max_size;
+ }
+ 
++#ifdef XTENSA_USE_TGT_REGNUM
++int
++xtensa_remote_register_number (struct gdbarch *gdbarch, int regnum)
++{
++  /* Return the name stored in the register map.  */
++  if (regnum >= 0 && regnum < gdbarch_num_cooked_regs (gdbarch))
++    return gdbarch_tdep (gdbarch)->regmap[regnum].target_number;
++
++  internal_error (__FILE__, __LINE__, _("invalid register %d"), regnum);
++  return regnum;
++}
++#endif
++
+ /* Module "constructor" function.  */
+ 
+ extern struct gdbarch_tdep xtensa_tdep;
+@@ -3193,6 +3206,10 @@ xtensa_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
+   set_gdbarch_register_name (gdbarch, xtensa_register_name);
+   set_gdbarch_register_type (gdbarch, xtensa_register_type);
+ 
++#ifdef XTENSA_USE_TGT_REGNUM
++  set_gdbarch_remote_register_number (gdbarch, xtensa_remote_register_number);
++#endif
++
+   /* To call functions from GDB using dummy frame.  */
+   set_gdbarch_push_dummy_call (gdbarch, xtensa_push_dummy_call);
+ 
+-- 
+2.26.2
+

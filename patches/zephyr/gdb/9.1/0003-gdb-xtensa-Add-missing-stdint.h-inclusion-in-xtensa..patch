@@ -1,0 +1,25 @@
+From ecbc94b0fe3878e0884e9f6ebbb38beb7f8a06f3 Mon Sep 17 00:00:00 2001
+From: Stephanos Ioannidis <root@stephanos.io>
+Date: Thu, 4 Jun 2020 13:45:44 +0900
+Subject: [PATCH 3/7] gdb: xtensa: Add missing stdint.h inclusion in xtensa.h
+
+---
+ gdb/arch/xtensa.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/gdb/arch/xtensa.h b/gdb/arch/xtensa.h
+index 12e26e7693..5555d62200 100644
+--- a/gdb/arch/xtensa.h
++++ b/gdb/arch/xtensa.h
+@@ -20,6 +20,8 @@
+ #ifndef ARCH_XTENSA_H
+ #define ARCH_XTENSA_H
+ 
++#include <stdint.h>
++
+ /* Xtensa ELF core file register set representation ('.reg' section).
+    Copied from target-side ELF header <xtensa/elf.h>.  */
+ 
+-- 
+2.26.2
+
