@@ -1,7 +1,7 @@
-From 4c6af87d0cf5d2ceb44056d0fab030a39dddd3bf Mon Sep 17 00:00:00 2001
+From f2218fcce4e7353f278f1992281b21a6a44d253e Mon Sep 17 00:00:00 2001
 From: Daniel Leung <danielcp@gmail.com>
 Date: Thu, 5 Mar 2020 14:30:36 -0800
-Subject: [PATCH 8/8] gdb: xtensa: does not support 'g' packet
+Subject: [PATCH 7/7] gdb: xtensa: does not support 'g' packet
 
 Signed-off-by: Daniel Leung <danielcp@gmail.com>
 ---
@@ -11,18 +11,18 @@ Signed-off-by: Daniel Leung <danielcp@gmail.com>
  3 files changed, 46 insertions(+)
 
 diff --git a/gdb/configure b/gdb/configure
-index e873b109ca..43982b7816 100755
+index 250e7e0ea8..7ae52df526 100755
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -901,6 +901,7 @@ enable_gdbserver
+@@ -912,6 +912,7 @@ enable_gdbserver
  with_babeltrace
  with_libbabeltrace_prefix
  enable_xtensa_use_target_regnum
 +enable_xtensa_remote_g_packet
+ with_xxhash
+ with_libxxhash_prefix
  enable_unit_tests
- '
-       ac_precious_vars='build_alias
-@@ -1582,6 +1583,8 @@ Optional Features:
+@@ -1583,6 +1584,8 @@ Optional Features:
                            is auto)
    --enable-xtensa-use-target-regnum
                            Use remote target register numbers (Xtensa target)
@@ -31,7 +31,7 @@ index e873b109ca..43982b7816 100755
    --enable-unit-tests     Enable the inclusion of unit tests when compiling
                            GDB
  
-@@ -17842,6 +17845,23 @@ if test x"$enable_xtensa_use_target_regnum" = xyes; then
+@@ -18420,6 +18423,23 @@ if test x"$enable_xtensa_use_target_regnum" = xyes; then
    CPPFLAGS="$CPPFLAGS -DXTENSA_USE_TGT_REGNUM"
  fi
  
@@ -52,14 +52,14 @@ index e873b109ca..43982b7816 100755
 +  CPPFLAGS="$CPPFLAGS -DXTENSA_DISABLE_REMOTE_G_PACKET"
 +fi
 +
- # If nativefile (NAT_FILE) is not set in configure.nat, we link to an
- # empty version.
+ # Check for xxhash
  
+ # Check whether --with-xxhash was given.
 diff --git a/gdb/configure.ac b/gdb/configure.ac
-index 56b004448f..15111eb700 100644
+index d889d2af0c..0ea27193f0 100644
 --- a/gdb/configure.ac
 +++ b/gdb/configure.ac
-@@ -2274,6 +2274,20 @@ if test x"$enable_xtensa_use_target_regnum" = xyes; then
+@@ -2181,6 +2181,20 @@ if test x"$enable_xtensa_use_target_regnum" = xyes; then
    CPPFLAGS="$CPPFLAGS -DXTENSA_USE_TGT_REGNUM"
  fi
  
@@ -77,11 +77,11 @@ index 56b004448f..15111eb700 100644
 +  CPPFLAGS="$CPPFLAGS -DXTENSA_DISABLE_REMOTE_G_PACKET"
 +fi
 +
- # If nativefile (NAT_FILE) is not set in configure.nat, we link to an
- # empty version.
- 
+ # Check for xxhash
+ AC_ARG_WITH(xxhash,
+   AC_HELP_STRING([--with-xxhash], [use libxxhash for hashing (faster) (auto/yes/no)]),
 diff --git a/gdb/xtensa-tdep.c b/gdb/xtensa-tdep.c
-index 48f1005e9e..15c0d68087 100644
+index 7d9e0c7d31..bc1078336d 100644
 --- a/gdb/xtensa-tdep.c
 +++ b/gdb/xtensa-tdep.c
 @@ -3158,6 +3158,16 @@ xtensa_remote_register_number (struct gdbarch *gdbarch, int regnum)
@@ -111,5 +111,5 @@ index 48f1005e9e..15c0d68087 100644
    gdbarch_init_osabi (info, gdbarch);
  
 -- 
-2.24.1
+2.26.2
 

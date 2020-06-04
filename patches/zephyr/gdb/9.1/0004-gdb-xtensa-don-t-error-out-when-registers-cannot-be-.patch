@@ -1,7 +1,7 @@
-From 88cfe105614a576580bc3f36ee1f0d91cd37b781 Mon Sep 17 00:00:00 2001
+From fa36466e6d45e93ceb14727b3b642199e873f8a7 Mon Sep 17 00:00:00 2001
 From: Daniel Leung <danielcp@gmail.com>
 Date: Thu, 5 Mar 2020 17:20:25 -0800
-Subject: [PATCH 5/8] gdb: xtensa: don't error out when registers cannot be
+Subject: [PATCH 4/7] gdb: xtensa: don't error out when registers cannot be
  read
 
 On Xtensa, some privileged registers cannot be read using 'p'
@@ -14,10 +14,10 @@ Signed-off-by: Daniel Leung <danielcp@gmail.com>
  1 file changed, 10 insertions(+)
 
 diff --git a/gdb/remote.c b/gdb/remote.c
-index 36136e3e3e..c8c5b32c74 100644
+index fbda2261eb..6f32ccff46 100644
 --- a/gdb/remote.c
 +++ b/gdb/remote.c
-@@ -7933,6 +7933,7 @@ remote_target::fetch_register_using_p (struct regcache *regcache,
+@@ -7878,6 +7878,7 @@ remote_target::fetch_register_using_p (struct regcache *regcache,
    char *buf, *p;
    gdb_byte *regp = (gdb_byte *) alloca (register_size (gdbarch, reg->regnum));
    int i;
@@ -25,7 +25,7 @@ index 36136e3e3e..c8c5b32c74 100644
  
    if (packet_support (PACKET_p) == PACKET_DISABLE)
      return 0;
-@@ -7956,6 +7957,15 @@ remote_target::fetch_register_using_p (struct regcache *regcache,
+@@ -7901,6 +7902,15 @@ remote_target::fetch_register_using_p (struct regcache *regcache,
      case PACKET_UNKNOWN:
        return 0;
      case PACKET_ERROR:
@@ -42,5 +42,5 @@ index 36136e3e3e..c8c5b32c74 100644
  	     gdbarch_register_name (regcache->arch (), 
  				    reg->regnum), 
 -- 
-2.24.1
+2.26.2
 

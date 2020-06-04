@@ -1,7 +1,7 @@
-From 5665931ee51625c9a29a41d845011be67ded7e54 Mon Sep 17 00:00:00 2001
+From de7319366a0c3e2faa996eecaaffb6238bac5096 Mon Sep 17 00:00:00 2001
 From: Daniel Leung <danielcp@gmail.com>
 Date: Thu, 5 Mar 2020 14:00:07 -0800
-Subject: [PATCH 6/8] gdb: xtensa: use remote target register number...
+Subject: [PATCH 5/7] gdb: xtensa: use remote target register number...
 
 ...instead of the sequential number defined in xtensa-config.c
 when retrieving registers from remote target, as the remote
@@ -15,18 +15,18 @@ Signed-off-by: Daniel Leung <danielcp@gmail.com>
  3 files changed, 51 insertions(+)
 
 diff --git a/gdb/configure b/gdb/configure
-index 352a56c6a2..e873b109ca 100755
+index 5d6f48edcf..250e7e0ea8 100755
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -900,6 +900,7 @@ enable_sim
+@@ -911,6 +911,7 @@ enable_sim
  enable_gdbserver
  with_babeltrace
  with_libbabeltrace_prefix
 +enable_xtensa_use_target_regnum
+ with_xxhash
+ with_libxxhash_prefix
  enable_unit_tests
- '
-       ac_precious_vars='build_alias
-@@ -1579,6 +1580,8 @@ Optional Features:
+@@ -1580,6 +1581,8 @@ Optional Features:
    --enable-sim            link gdb with simulator
    --enable-gdbserver      automatically build gdbserver (yes/no/auto, default
                            is auto)
@@ -35,7 +35,7 @@ index 352a56c6a2..e873b109ca 100755
    --enable-unit-tests     Enable the inclusion of unit tests when compiling
                            GDB
  
-@@ -17822,6 +17825,23 @@ $as_echo "$as_me: WARNING: babeltrace is missing or unusable; GDB is unable to r
+@@ -18400,6 +18403,23 @@ $as_echo "$as_me: WARNING: babeltrace is missing or unusable; GDB is unable to r
    fi
  fi
  
@@ -56,14 +56,14 @@ index 352a56c6a2..e873b109ca 100755
 +  CPPFLAGS="$CPPFLAGS -DXTENSA_USE_TGT_REGNUM"
 +fi
 +
- # If nativefile (NAT_FILE) is not set in configure.nat, we link to an
- # empty version.
+ # Check for xxhash
  
+ # Check whether --with-xxhash was given.
 diff --git a/gdb/configure.ac b/gdb/configure.ac
-index 0805827adf..56b004448f 100644
+index 589c725370..d889d2af0c 100644
 --- a/gdb/configure.ac
 +++ b/gdb/configure.ac
-@@ -2260,6 +2260,20 @@ else
+@@ -2167,6 +2167,20 @@ else
    fi
  fi
  
@@ -81,11 +81,11 @@ index 0805827adf..56b004448f 100644
 +  CPPFLAGS="$CPPFLAGS -DXTENSA_USE_TGT_REGNUM"
 +fi
 +
- # If nativefile (NAT_FILE) is not set in configure.nat, we link to an
- # empty version.
- 
+ # Check for xxhash
+ AC_ARG_WITH(xxhash,
+   AC_HELP_STRING([--with-xxhash], [use libxxhash for hashing (faster) (auto/yes/no)]),
 diff --git a/gdb/xtensa-tdep.c b/gdb/xtensa-tdep.c
-index fcec9961ee..48f1005e9e 100644
+index d44c5b52c0..7d9e0c7d31 100644
 --- a/gdb/xtensa-tdep.c
 +++ b/gdb/xtensa-tdep.c
 @@ -3145,6 +3145,19 @@ xtensa_derive_tdep (struct gdbarch_tdep *tdep)
@@ -120,5 +120,5 @@ index fcec9961ee..48f1005e9e 100644
    set_gdbarch_push_dummy_call (gdbarch, xtensa_push_dummy_call);
  
 -- 
-2.24.1
+2.26.2
 
