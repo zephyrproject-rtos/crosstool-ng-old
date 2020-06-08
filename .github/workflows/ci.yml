@@ -75,10 +75,14 @@ jobs:
         mkdir -p ${HOME}/boost
         pushd ${HOME}/boost
 
-        # Download and extract Boost library source code
-        wget https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.gz
-        tar xvf boost_1_73_0.tar.gz
-        cd boost_1_73_0
+        # Check out Boost library source code
+        git clone \
+          --branch boost-1.73.0 --depth 1 \
+          https://github.com/boostorg/boost.git \
+          src
+
+        cd src
+        git submodule update --init --depth 1
 
         # Bootstrap builder
         ./bootstrap.sh --with-toolset=gcc --with-libraries=regex --without-icu
